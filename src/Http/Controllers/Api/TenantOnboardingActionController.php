@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Maaz\LaravelZatca\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Maaz\LaravelZatca\Exceptions\ZatcaException;
 use Maaz\LaravelZatca\Http\Requests\GenerateTenantCsrRequest;
 use Maaz\LaravelZatca\Http\Requests\IssueComplianceCsidRequest;
 use Maaz\LaravelZatca\Http\Requests\IssueProductionCsidRequest;
@@ -25,7 +27,12 @@ class TenantOnboardingActionController extends Controller
     {
         $this->access->authorizeTenantAccess($tenant);
         $tenantModel = $this->flow->findTenantOrFail($tenant);
-        $result = $this->flow->generateCsr($tenantModel, $request->validated());
+
+        try {
+            $result = $this->flow->generateCsr($tenantModel, $request->validated());
+        } catch (ZatcaException $exception) {
+            return $this->zatcaError($exception);
+        }
 
         return response()->json([
             'message' => 'CSR generated successfully.',
@@ -44,7 +51,12 @@ class TenantOnboardingActionController extends Controller
     {
         $this->access->authorizeTenantAccess($tenant);
         $tenantModel = $this->flow->findTenantOrFail($tenant);
-        $result = $this->flow->issueComplianceCsid($tenantModel, $request->validated());
+
+        try {
+            $result = $this->flow->issueComplianceCsid($tenantModel, $request->validated());
+        } catch (ZatcaException $exception) {
+            return $this->zatcaError($exception);
+        }
 
         return response()->json([
             'message' => 'Compliance CSID issued successfully.',
@@ -57,12 +69,25 @@ class TenantOnboardingActionController extends Controller
     {
         $this->access->authorizeTenantAccess($tenant);
         $tenantModel = $this->flow->findTenantOrFail($tenant);
-        $result = $this->flow->issueProductionCsid($tenantModel, $request->validated());
+
+        try {
+            $result = $this->flow->issueProductionCsid($tenantModel, $request->validated());
+        } catch (ZatcaException $exception) {
+            return $this->zatcaError($exception);
+        }
 
         return response()->json([
             'message' => 'Production CSID issued successfully.',
             'tenant' => (new TenantOnboardingResource($tenantModel->fresh(['credentials', 'invoiceStates'])))->resolve(),
             'production_csid' => $result['body'] ?? $result,
         ]);
+    }
+
+    private function zatcaError(ZatcaException $exception): JsonResponse
+    {
+        return response()->json([
+            'message' => $exception->getMessage(),
+            'error' => class_basename($exception),
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }

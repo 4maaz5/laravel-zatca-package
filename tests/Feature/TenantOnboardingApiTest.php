@@ -7,6 +7,7 @@ namespace Maaz\LaravelZatca\Tests\Feature;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Maaz\LaravelZatca\DTOs\GeneratedCsrResult;
 use Maaz\LaravelZatca\Services\ZatcaManager;
+use Maaz\LaravelZatca\Tenancy\Models\ZatcaTenant;
 use Maaz\LaravelZatca\Tenancy\Onboarding\TenantOnboardingFlow;
 use Maaz\LaravelZatca\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -185,6 +186,98 @@ class TenantOnboardingApiTest extends TestCase
             ->assertJsonPath('tenant.onboarding_status', 'csr_generated')
             ->assertJsonPath('tenant.credentials.0.has_compliance_csid', false)
             ->assertJsonPath('tenant.credentials.0.has_production_csid', false);
+    }
+
+    #[Test]
+    public function it_does_not_mark_compliance_as_issued_when_the_api_response_is_not_successful(): void
+    {
+        $this->postJson('/api/zatca/onboarding/tenants', [
+            'key' => 'tenant-compliance-fail',
+            'legal_name' => 'BI Technology Company',
+            'vat_number' => '313138851500003',
+            'branch_name' => 'Riyadh Branch',
+        ])->assertCreated();
+
+        $tenant = ZatcaTenant::where('key', 'tenant-compliance-fail')->firstOrFail();
+        $tenant->credentials()->where('environment', 'sandbox')->firstOrFail()->forceFill([
+            'status' => 'csr_generated',
+            'csr_base64' => 'csr-base64',
+        ])->save();
+
+        $manager = $this->mock(ZatcaManager::class);
+        $manager->shouldReceive('forTenant')
+            ->once()
+            ->with('tenant-compliance-fail')
+            ->andReturnSelf();
+        $manager->shouldReceive('onboardComplianceCsid')
+            ->once()
+            ->andReturn([
+                'success' => false,
+                'status_code' => 400,
+                'body' => 'Invalid Request',
+            ]);
+
+        $this->app->instance(ZatcaManager::class, $manager);
+        $this->app->forgetInstance(TenantOnboardingFlow::class);
+
+        $this->postJson('/api/zatca/onboarding/tenants/tenant-compliance-fail/compliance-csid', [
+            'otp' => '664608',
+        ])->assertUnprocessable()
+            ->assertJsonPath('error', 'ApiException');
+
+        $credential = $tenant->credentials()->where('environment', 'sandbox')->firstOrFail();
+
+        $this->assertSame('csr_generated', $credential->status);
+        $this->assertNull($credential->compliance_binary_security_token);
+        $this->assertNull($credential->compliance_secret);
+    }
+
+    #[Test]
+    public function it_does_not_mark_production_as_issued_when_the_api_response_has_no_token(): void
+    {
+        $this->postJson('/api/zatca/onboarding/tenants', [
+            'key' => 'tenant-production-fail',
+            'legal_name' => 'BI Technology Company',
+            'vat_number' => '313138851500003',
+            'branch_name' => 'Riyadh Branch',
+        ])->assertCreated();
+
+        $tenant = ZatcaTenant::where('key', 'tenant-production-fail')->firstOrFail();
+        $tenant->credentials()->where('environment', 'sandbox')->firstOrFail()->forceFill([
+            'status' => 'compliance_issued',
+            'compliance_request_id' => '1234567890123',
+            'compliance_binary_security_token' => 'compliance-token',
+            'compliance_secret' => 'compliance-secret',
+        ])->save();
+
+        $manager = $this->mock(ZatcaManager::class);
+        $manager->shouldReceive('forTenant')
+            ->once()
+            ->with('tenant-production-fail')
+            ->andReturnSelf();
+        $manager->shouldReceive('onboardProductionCsid')
+            ->once()
+            ->andReturn([
+                'success' => true,
+                'status_code' => 200,
+                'body' => [
+                    'requestID' => 30368,
+                    'dispositionMessage' => 'ISSUED',
+                ],
+            ]);
+
+        $this->app->instance(ZatcaManager::class, $manager);
+        $this->app->forgetInstance(TenantOnboardingFlow::class);
+
+        $this->postJson('/api/zatca/onboarding/tenants/tenant-production-fail/production-csid')
+            ->assertUnprocessable()
+            ->assertJsonPath('error', 'ApiException');
+
+        $credential = $tenant->credentials()->where('environment', 'sandbox')->firstOrFail();
+
+        $this->assertSame('compliance_issued', $credential->status);
+        $this->assertNull($credential->production_binary_security_token);
+        $this->assertNull($credential->production_secret);
     }
 
     #[Test]

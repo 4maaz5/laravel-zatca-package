@@ -26,6 +26,9 @@ return [
     'api_server_error' => 'ZATCA API server error (:status).',
     'api_missing_credentials' => 'No API client credentials are configured for the active tenant.',
     'api_certificate_vat_mismatch' => 'Invoice seller VAT (:invoice_vat) does not match the VAT in the authentication certificate (:certificate_vat).',
+    'onboarding_request_failed' => ':stage request failed. HTTP status: :status.',
+    'onboarding_request_failed_with_message' => ':stage request failed. HTTP status: :status. Message: :message',
+    'onboarding_response_missing_field' => ':stage response is missing required field ":field". The credential was not marked as issued.',
     'invoice_submission_missing_environment_credentials' => 'The :environment invoice credential record is not ready yet. Finish the Setup steps for this tenant before submitting invoices.',
     'invoice_submission_missing_private_key' => 'The :environment invoice credential is missing its private key. Generate the CSR again or complete onboarding before submitting invoices.',
     'invoice_submission_missing_certificate' => 'The :environment invoice credential does not have a CSID certificate yet. Complete Compliance or Production issuance in Setup before submitting invoices.',
@@ -36,6 +39,7 @@ return [
     'production_csid_missing_request_id' => 'Compliance request ID is required. Provide --request-id or --compliance-response.',
     'production_csid_missing_token' => 'Compliance binary security token is required. Provide --binary-security-token or --compliance-response.',
     'production_csid_missing_secret' => 'Compliance secret is required. Provide --secret or --compliance-response.',
+    'production_csid_missing_compliance_material' => 'Compliance CSID material is incomplete for this environment. Issue Compliance CSID successfully before requesting Production CSID.',
     'credential_rotation_invalid_key' => 'The provided APP_KEY value is not valid for Laravel encryption.',
     'credential_rotation_undecryptable' => 'Unable to decrypt credential record :id field ":column" with the provided previous APP_KEY values.',
 ];

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Maaz\LaravelZatca\Exceptions\ApiException;
 use Maaz\LaravelZatca\Services\ZatcaManager;
 use Maaz\LaravelZatca\Tenancy\Models\ZatcaTenant;
 use Maaz\LaravelZatca\Tenancy\Models\ZatcaTenantCredential;
@@ -174,7 +175,7 @@ class TenantOnboardingFlow
             'csr' => $csr,
         ]);
 
-        $body = is_array($result['body'] ?? null) ? $result['body'] : [];
+        $body = $this->validatedOnboardingBody($result, ['requestID', 'binarySecurityToken', 'secret'], 'Compliance CSID');
 
         $credential->fill([
             'status' => 'compliance_issued',
@@ -201,13 +202,17 @@ class TenantOnboardingFlow
         $environment = $this->environment($tenant, $payload);
         $credential = $this->credential($tenant, $environment);
 
+        if (empty($credential->compliance_request_id) || empty($credential->compliance_binary_security_token) || empty($credential->compliance_secret)) {
+            throw new ApiException((string) trans('zatca::exceptions.production_csid_missing_compliance_material'));
+        }
+
         $result = $this->managerForTenant($tenant)->onboardProductionCsid([
             'compliance_request_id' => (string) $credential->compliance_request_id,
             'binary_security_token' => (string) $credential->compliance_binary_security_token,
             'secret' => (string) $credential->compliance_secret,
         ]);
 
-        $body = is_array($result['body'] ?? null) ? $result['body'] : [];
+        $body = $this->validatedOnboardingBody($result, ['binarySecurityToken', 'secret'], 'Production CSID');
 
         $credential->fill([
             'status' => 'production_issued',
@@ -222,6 +227,54 @@ class TenantOnboardingFlow
         $tenant->update(['onboarding_status' => 'production_issued']);
 
         return $result;
+    }
+
+    /**
+     * @param  array<string, mixed>  $result
+     * @param  list<string>  $requiredKeys
+     * @return array<string, mixed>
+     */
+    private function validatedOnboardingBody(array $result, array $requiredKeys, string $stage): array
+    {
+        $body = is_array($result['body'] ?? null) ? $result['body'] : [];
+
+        if (! (bool) ($result['success'] ?? false)) {
+            throw new ApiException($this->onboardingFailureMessage($stage, $result, $body));
+        }
+
+        foreach ($requiredKeys as $key) {
+            if (! is_scalar($body[$key] ?? null) || trim((string) $body[$key]) === '') {
+                throw new ApiException((string) trans('zatca::exceptions.onboarding_response_missing_field', [
+                    'stage' => $stage,
+                    'field' => $key,
+                ]));
+            }
+        }
+
+        return $body;
+    }
+
+    /**
+     * @param  array<string, mixed>  $result
+     * @param  array<string, mixed>  $body
+     */
+    private function onboardingFailureMessage(string $stage, array $result, array $body): string
+    {
+        $statusCode = (string) ($result['status_code'] ?? 'unknown');
+        $message = $body['message'] ?? $body['error'] ?? $body['dispositionMessage'] ?? null;
+
+        if (is_scalar($message) && trim((string) $message) !== '') {
+            return (string) trans('zatca::exceptions.onboarding_request_failed_with_message', [
+                'stage' => $stage,
+                'status' => $statusCode,
+                'message' => (string) $message,
+            ]);
+        }
+
+        return (string) trans('zatca::exceptions.onboarding_request_failed', [
+            'stage' => $stage,
+            'status' => $statusCode,
+        ]);
     }
 
     private function credential(ZatcaTenant $tenant, string $environment): ZatcaTenantCredential

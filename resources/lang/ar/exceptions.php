@@ -26,6 +26,9 @@ return [
     'api_server_error' => 'خطأ من خادم ZATCA API (:status).',
     'api_missing_credentials' => 'لا توجد بيانات اعتماد API مهيأة للمستأجر الحالي.',
     'api_certificate_vat_mismatch' => 'رقم ضريبة البائع في الفاتورة (:invoice_vat) لا يطابق الرقم الموجود في شهادة المصادقة (:certificate_vat).',
+    'onboarding_request_failed' => ':stage request failed. HTTP status: :status.',
+    'onboarding_request_failed_with_message' => ':stage request failed. HTTP status: :status. Message: :message',
+    'onboarding_response_missing_field' => ':stage response is missing required field ":field". The credential was not marked as issued.',
     'invoice_submission_missing_environment_credentials' => 'اعتماد الفواتير لبيئة :environment غير جاهز بعد. أكمل خطوات الإعداد لهذا المستأجر قبل إرسال الفواتير.',
     'invoice_submission_missing_private_key' => 'اعتماد الفواتير لبيئة :environment يفتقد المفتاح الخاص. أعد إنشاء CSR أو أكمل التهيئة قبل إرسال الفواتير.',
     'invoice_submission_missing_certificate' => 'اعتماد الفواتير لبيئة :environment لا يحتوي على شهادة CSID بعد. أكمل إصدار Compliance أو Production في خطوة الإعداد قبل إرسال الفواتير.',
@@ -36,6 +39,7 @@ return [
     'production_csid_missing_request_id' => 'معرف طلب Compliance مطلوب. وفّر --request-id أو --compliance-response.',
     'production_csid_missing_token' => 'رمز الأمان الثنائي لـ Compliance مطلوب. وفّر --binary-security-token أو --compliance-response.',
     'production_csid_missing_secret' => 'سر Compliance مطلوب. وفّر --secret أو --compliance-response.',
+    'production_csid_missing_compliance_material' => 'Compliance CSID material is incomplete for this environment. Issue Compliance CSID successfully before requesting Production CSID.',
     'credential_rotation_invalid_key' => 'قيمة APP_KEY المقدمة غير صالحة لتشفير Laravel.',
     'credential_rotation_undecryptable' => 'تعذر فك تشفير السجل :id للحقل ":column" باستخدام قيم APP_KEY السابقة المقدمة.',
 ];
