@@ -20,7 +20,7 @@ class RequestComplianceCsidCommandTest extends TestCase
                 ->once()
                 ->with([
                     'otp' => '123345',
-                    'csr' => base64_encode("-----BEGIN CERTIFICATE REQUEST-----\nQ1NSQkFTRTY0\n-----END CERTIFICATE REQUEST-----\n"),
+                    'csr' => 'Q1NSQkFTRTY0',
                 ])
                 ->andReturn([
                     'success' => true,

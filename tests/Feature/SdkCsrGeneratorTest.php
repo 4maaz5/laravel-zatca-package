@@ -71,7 +71,7 @@ class SdkCsrGeneratorTest extends TestCase
                 'branch_name' => 'Riyadh Branch',
             ]));
 
-            $this->assertSame(base64_encode("-----BEGIN CERTIFICATE REQUEST-----\nQ1NSQkFTRTY0\n-----END CERTIFICATE REQUEST-----\n"), $result->csrBase64);
+            $this->assertSame('Q1NSQkFTRTY0', $result->csrBase64);
             $this->assertStringContainsString('BEGIN CERTIFICATE REQUEST', $result->csrPem);
             $this->assertStringContainsString('BEGIN EC PRIVATE KEY', $result->privateKeyPem);
             $this->assertSame('399999999900003', $result->properties['csr.organization.identifier']);

@@ -97,7 +97,7 @@ class SdkCsrGenerator implements CsrGenerator
             return new GeneratedCsrResult(
                 csrPath: $csrPath,
                 privateKeyPath: $privateKeyPath,
-                csrBase64: base64_encode($this->normalizeLineEndings($csrPem)),
+                csrBase64: $this->normalizeCsrBase64($csrPem),
                 csrPem: $csrPem,
                 privateKeyPem: $privateKeyPem,
                 properties: $properties,
@@ -368,6 +368,18 @@ class SdkCsrGenerator implements CsrGenerator
     protected function normalizeLineEndings(string $value): string
     {
         return str_replace(["\r\n", "\r"], "\n", trim($value)) . "\n";
+    }
+
+    protected function normalizeCsrBase64(string $csrPem): string
+    {
+        $normalized = $this->normalizeLineEndings($csrPem);
+        $stripped = preg_replace('/-----BEGIN CERTIFICATE REQUEST-----|-----END CERTIFICATE REQUEST-----|\s+/', '', $normalized);
+
+        if (! is_string($stripped) || trim($stripped) === '') {
+            throw new CsrException((string) trans('zatca::exceptions.csr_generation_failed'));
+        }
+
+        return trim($stripped);
     }
 
     protected function makeWorkspace(): string

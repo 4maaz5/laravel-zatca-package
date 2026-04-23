@@ -223,7 +223,8 @@ class TenantOnboardingApiTest extends TestCase
         $this->postJson('/api/zatca/onboarding/tenants/tenant-compliance-fail/compliance-csid', [
             'otp' => '664608',
         ])->assertUnprocessable()
-            ->assertJsonPath('error', 'ApiException');
+            ->assertJsonPath('error', 'ApiException')
+            ->assertJsonPath('message', 'Compliance CSID request failed. HTTP status: 400. Message: Invalid Request');
 
         $credential = $tenant->credentials()->where('environment', 'sandbox')->firstOrFail();
 

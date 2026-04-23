@@ -119,9 +119,7 @@ class RequestComplianceCsidCommand extends Command
         $trimmed = trim($csr);
 
         if (str_contains($trimmed, 'BEGIN CERTIFICATE REQUEST')) {
-            $pem = str_replace(["\r\n", "\r"], "\n", $trimmed) . "\n";
-
-            return base64_encode($pem);
+            return preg_replace('/-----BEGIN CERTIFICATE REQUEST-----|-----END CERTIFICATE REQUEST-----|\s+/', '', $trimmed) ?? '';
         }
 
         return preg_replace('/\s+/', '', $trimmed) ?? '';

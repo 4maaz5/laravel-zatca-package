@@ -261,7 +261,12 @@ class TenantOnboardingFlow
     private function onboardingFailureMessage(string $stage, array $result, array $body): string
     {
         $statusCode = (string) ($result['status_code'] ?? 'unknown');
+        $rawBody = $result['body'] ?? null;
         $message = $body['message'] ?? $body['error'] ?? $body['dispositionMessage'] ?? null;
+
+        if ((! is_scalar($message) || trim((string) $message) === '') && is_scalar($rawBody) && trim((string) $rawBody) !== '') {
+            $message = (string) $rawBody;
+        }
 
         if (is_scalar($message) && trim((string) $message) !== '') {
             return (string) trans('zatca::exceptions.onboarding_request_failed_with_message', [
