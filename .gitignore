@@ -1,0 +1,13 @@
+/.phpunit.result.cache
+/vendor/
+/storage/
+/.net sdk/
+/temp_*.xml
+/.env
+/.env.*
+!/phpunit.xml.dist
+*.pem
+*.csr
+*.key
+*.p12
+*.pfx

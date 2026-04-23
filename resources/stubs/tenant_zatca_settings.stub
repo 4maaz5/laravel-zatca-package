@@ -1,0 +1,20 @@
+<?php
+
+return [
+    'seller_name' => '',
+    'seller_vat_number' => '',
+    'environment' => 'sandbox',
+    'language' => 'en',
+    'certificates' => [
+        'certificate' => null,
+        'private_key' => null,
+        'secret' => null,
+    ],
+    'api' => [
+        'base_url' => null,
+        'compliance_url' => null,
+        'clearance_url' => null,
+        'reporting_url' => null,
+        'timeout' => 30,
+    ],
+];

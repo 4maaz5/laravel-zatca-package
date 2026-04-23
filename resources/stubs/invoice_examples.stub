@@ -1,0 +1,19 @@
+<?php
+
+return [
+    'invoice_number' => 'INV-1000',
+    'issued_at' => now()->toIso8601String(),
+    'seller' => [
+        'name' => 'Demo Seller',
+        'vat_number' => '300000000000003',
+    ],
+    'buyer' => [
+        'name' => 'Demo Buyer',
+        'vat_number' => '300000000000004',
+    ],
+    'totals' => [
+        'subtotal' => '100.00',
+        'tax' => '15.00',
+        'total' => '115.00',
+    ],
+];
