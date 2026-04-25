@@ -1585,18 +1585,22 @@
             return;
         }
 
+        const csrDefaults = selectedTenant.metadata?.csr_defaults || {};
         const sellerName = selectedTenant.seller_name || selectedTenant.legal_name || '';
         const branchName = selectedTenant.branch_name || 'Main Branch';
         const vatNumber = selectedTenant.vat_number || '';
         const crn = selectedTenant.crn || selectedTenant.key || 'TENANT';
+        const serialPrefix = csrDefaults.serial_number_prefix || `1-${selectedTenant.key || 'TENANT'}|2-LARAVEL-ZATCA|3-`;
 
-        csrForm.elements.common_name.value = `TST-${crn}-${vatNumber}`.replace(/\s+/g, '');
-        csrForm.elements.serial_number.value = `1-${selectedTenant.key || 'TENANT'}|2-LARAVEL-ZATCA|3-${crypto.randomUUID()}`;
-        csrForm.elements.organization_identifier.value = vatNumber;
-        csrForm.elements.organization_unit_name.value = branchName;
-        csrForm.elements.organization_name.value = sellerName;
-        csrForm.elements.country_name.value = 'SA';
-        csrForm.elements.invoice_type.value = csrForm.elements.invoice_type.value || '1100';
+        csrForm.elements.common_name.value = csrDefaults.common_name || `TST-${crn}-${vatNumber}`.replace(/\s+/g, '');
+        csrForm.elements.serial_number.value = `${serialPrefix}${crypto.randomUUID()}`;
+        csrForm.elements.organization_identifier.value = csrDefaults.organization_identifier || vatNumber;
+        csrForm.elements.organization_unit_name.value = csrDefaults.organization_unit_name || branchName;
+        csrForm.elements.organization_name.value = csrDefaults.organization_name || sellerName;
+        csrForm.elements.country_name.value = csrDefaults.country_name || 'SA';
+        csrForm.elements.invoice_type.value = csrDefaults.invoice_type || csrForm.elements.invoice_type.value || '1100';
+        csrForm.elements.location_address.value = csrDefaults.location_address || csrForm.elements.location_address.value || '';
+        csrForm.elements.industry_business_category.value = csrDefaults.industry_business_category || csrForm.elements.industry_business_category.value || '';
     }
 
     function invoiceCredentialForEnvironment(environment) {
