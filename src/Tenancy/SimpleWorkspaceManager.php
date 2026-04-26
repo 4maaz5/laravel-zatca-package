@@ -41,9 +41,7 @@ class SimpleWorkspaceManager
 
         return DB::transaction(function (): ZatcaTenant {
             $defaults = $this->defaults();
-            $tenant = ZatcaTenant::query()->firstOrNew([
-                'key' => $defaults['key'],
-            ]);
+            $tenant = $this->resolveWorkspaceTenant($defaults);
 
             $profileAttributes = [
                 'legal_name',
@@ -124,6 +122,37 @@ class SimpleWorkspaceManager
 
             return $tenant->fresh(['credentials', 'invoiceStates', 'notificationHooks']);
         });
+    }
+
+    /**
+     * @param  array<string, mixed>  $defaults
+     */
+    protected function resolveWorkspaceTenant(array $defaults): ZatcaTenant
+    {
+        $tenantKey = (string) ($defaults['key'] ?? 'default');
+        $vatNumber = trim((string) ($defaults['vat_number'] ?? ''));
+
+        $tenant = ZatcaTenant::query()->where('key', $tenantKey)->first();
+
+        if ($tenant instanceof ZatcaTenant) {
+            return $tenant;
+        }
+
+        if ($vatNumber !== '') {
+            $tenant = ZatcaTenant::query()->where('vat_number', $vatNumber)->first();
+
+            if ($tenant instanceof ZatcaTenant) {
+                if ($tenant->key !== $tenantKey && ! ZatcaTenant::query()->where('key', $tenantKey)->exists()) {
+                    $tenant->key = $tenantKey;
+                }
+
+                return $tenant;
+            }
+        }
+
+        return new ZatcaTenant([
+            'key' => $tenantKey,
+        ]);
     }
 
     /**

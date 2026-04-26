@@ -270,6 +270,29 @@ class TenantOnboardingFlow
         $rawBody = $result['body'] ?? null;
         $message = $body['message'] ?? $body['error'] ?? $body['dispositionMessage'] ?? null;
 
+        if ((! is_scalar($message) || trim((string) $message) === '') && is_array($body['errors'] ?? null)) {
+            $messages = [];
+
+            foreach ($body['errors'] as $error) {
+                if (! is_array($error)) {
+                    continue;
+                }
+
+                $code = isset($error['code']) && is_scalar($error['code']) ? trim((string) $error['code']) : '';
+                $errorMessage = isset($error['message']) && is_scalar($error['message']) ? trim((string) $error['message']) : '';
+
+                if ($errorMessage === '') {
+                    continue;
+                }
+
+                $messages[] = $code !== '' ? sprintf('%s: %s', $code, $errorMessage) : $errorMessage;
+            }
+
+            if ($messages !== []) {
+                $message = implode(' | ', $messages);
+            }
+        }
+
         if ((! is_scalar($message) || trim((string) $message) === '') && is_scalar($rawBody) && trim((string) $rawBody) !== '') {
             $message = (string) $rawBody;
         }

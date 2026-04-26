@@ -234,6 +234,52 @@ class TenantOnboardingApiTest extends TestCase
     }
 
     #[Test]
+    public function it_surfaces_structured_zatca_errors_from_failed_compliance_onboarding(): void
+    {
+        $this->postJson('/api/zatca/onboarding/tenants', [
+            'key' => 'tenant-compliance-structured-fail',
+            'legal_name' => 'BI Technology Company',
+            'vat_number' => '313138851500003',
+            'branch_name' => 'Riyadh Branch',
+        ])->assertCreated();
+
+        $tenant = ZatcaTenant::where('key', 'tenant-compliance-structured-fail')->firstOrFail();
+        $tenant->credentials()->where('environment', 'sandbox')->firstOrFail()->forceFill([
+            'status' => 'csr_generated',
+            'csr_base64' => 'csr-base64',
+        ])->save();
+
+        $manager = $this->mock(ZatcaManager::class);
+        $manager->shouldReceive('forTenant')
+            ->once()
+            ->with('tenant-compliance-structured-fail')
+            ->andReturnSelf();
+        $manager->shouldReceive('onboardComplianceCsid')
+            ->once()
+            ->andReturn([
+                'success' => false,
+                'status_code' => 400,
+                'body' => [
+                    'errors' => [
+                        [
+                            'code' => 'Invalid-OTP',
+                            'message' => 'The provided OTP is invalid',
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->app->instance(ZatcaManager::class, $manager);
+        $this->app->forgetInstance(TenantOnboardingFlow::class);
+
+        $this->postJson('/api/zatca/onboarding/tenants/tenant-compliance-structured-fail/compliance-csid', [
+            'otp' => '664608',
+        ])->assertUnprocessable()
+            ->assertJsonPath('error', 'ApiException')
+            ->assertJsonPath('message', 'Compliance CSID request failed. HTTP status: 400. Message: Invalid-OTP: The provided OTP is invalid');
+    }
+
+    #[Test]
     public function it_does_not_mark_production_as_issued_when_the_api_response_has_no_token(): void
     {
         $this->postJson('/api/zatca/onboarding/tenants', [

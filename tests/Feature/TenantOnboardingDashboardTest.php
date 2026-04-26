@@ -105,6 +105,37 @@ class TenantOnboardingDashboardTest extends TestCase
         ]);
     }
 
+    public function test_simple_mode_reuses_existing_workspace_with_same_vat_when_key_changes(): void
+    {
+        $this->createTenant('default', 'Simple BI Workspace', '313138851500003');
+
+        config()->set('zatca.onboarding.simple_mode.enabled', true);
+        config()->set('zatca.onboarding.simple_mode.show_notification_hooks', false);
+        config()->set('zatca.default_tenant.key', 'bi-tech');
+        config()->set('zatca.onboarding.simple_mode.tenant_key', 'bi-tech');
+        config()->set('zatca.default_tenant.legal_name', 'Simple BI Workspace');
+        config()->set('zatca.default_tenant.seller_name', 'Simple BI Workspace');
+        config()->set('zatca.default_tenant.seller_vat_number', '313138851500003');
+        config()->set('zatca.default_tenant.branch_name', 'Riyadh Branch');
+
+        $response = $this->get('/zatca/onboarding/dashboard?lang=en');
+
+        $response->assertOk()
+            ->assertSee('Simple BI Workspace')
+            ->assertDontSee('id="new-tenant-toggle"', false)
+            ->assertSee('data-simple-mode=\'true\'', false);
+
+        $this->assertDatabaseHas('zatca_tenants', [
+            'key' => 'bi-tech',
+            'vat_number' => '313138851500003',
+        ]);
+
+        $this->assertDatabaseMissing('zatca_tenants', [
+            'key' => 'default',
+            'vat_number' => '313138851500003',
+        ]);
+    }
+
     private function createTenant(string $key, string $sellerName, string $vatNumber): ZatcaTenant
     {
         $tenant = ZatcaTenant::query()->create([
