@@ -319,6 +319,33 @@ class TenantOnboardingApiTest extends TestCase
         ])->assertForbidden();
     }
 
+    #[Test]
+    public function it_auto_provisions_a_single_workspace_when_simple_mode_is_enabled(): void
+    {
+        config()->set('zatca.onboarding.simple_mode.enabled', true);
+        config()->set('zatca.default_tenant.key', 'default');
+        config()->set('zatca.default_tenant.legal_name', 'Simple Workspace');
+        config()->set('zatca.default_tenant.seller_name', 'Simple Workspace');
+        config()->set('zatca.default_tenant.seller_vat_number', '313138851500003');
+        config()->set('zatca.default_tenant.branch_name', 'Riyadh Branch');
+
+        $this->getJson('/api/zatca/onboarding/tenants')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.key', 'default')
+            ->assertJsonPath('data.0.legal_name', 'Simple Workspace');
+
+        $this->getJson('/api/zatca/onboarding/tenants/default')
+            ->assertOk()
+            ->assertJsonPath('data.key', 'default');
+
+        $this->postJson('/api/zatca/onboarding/tenants', [
+            'key' => 'another-tenant',
+            'legal_name' => 'Forbidden Workspace',
+            'vat_number' => '300000000000013',
+        ])->assertNotFound();
+    }
+
     private function tenantUser(string $tenantKey): Authenticatable
     {
         return new class ($tenantKey) extends Authenticatable {

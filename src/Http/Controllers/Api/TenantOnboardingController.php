@@ -29,6 +29,7 @@ class TenantOnboardingController extends Controller
 
     public function store(StoreTenantOnboardingRequest $request): JsonResponse
     {
+        abort_if((bool) config('zatca.onboarding.simple_mode.enabled', false), 404);
         abort_unless($this->access->canManageTenants(), 403);
 
         $tenant = $this->flow->createTenant($request->validated());

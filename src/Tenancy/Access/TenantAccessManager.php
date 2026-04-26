@@ -26,6 +26,10 @@ class TenantAccessManager
 
     public function preferredTenantKey(): ?string
     {
+        if ($this->simpleModeEnabled()) {
+            return $this->simpleTenantKey();
+        }
+
         $context = $this->context();
 
         if ($context === null) {
@@ -37,6 +41,10 @@ class TenantAccessManager
 
     public function canManageTenants(): bool
     {
+        if ($this->simpleModeEnabled()) {
+            return false;
+        }
+
         $user = $this->user();
 
         if ($user === null) {
@@ -70,6 +78,10 @@ class TenantAccessManager
 
     public function authorizeTenantAccess(string $tenant): void
     {
+        if ($this->simpleModeEnabled() && $tenant === $this->simpleTenantKey()) {
+            return;
+        }
+
         if ($this->canManageTenants()) {
             return;
         }
@@ -89,6 +101,12 @@ class TenantAccessManager
 
     public function scopeVisibleTenants(Collection $tenants): Collection
     {
+        if ($this->simpleModeEnabled()) {
+            return $tenants
+                ->filter(fn ($tenant): bool => (string) $tenant->key === $this->simpleTenantKey())
+                ->values();
+        }
+
         if ($this->canManageTenants()) {
             return $tenants;
         }
@@ -115,5 +133,15 @@ class TenantAccessManager
         }
 
         return $this->auth->user();
+    }
+
+    private function simpleModeEnabled(): bool
+    {
+        return (bool) config('zatca.onboarding.simple_mode.enabled', false);
+    }
+
+    private function simpleTenantKey(): string
+    {
+        return (string) config('zatca.onboarding.simple_mode.tenant_key', 'default');
     }
 }

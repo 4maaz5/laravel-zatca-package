@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Maaz\LaravelZatca\Exceptions\ApiException;
 use Maaz\LaravelZatca\Services\ZatcaManager;
+use Maaz\LaravelZatca\Tenancy\SimpleWorkspaceManager;
 use Maaz\LaravelZatca\Tenancy\Models\ZatcaTenant;
 use Maaz\LaravelZatca\Tenancy\Models\ZatcaTenantCredential;
 use Maaz\LaravelZatca\Tenancy\Models\ZatcaTenantInvoiceState;
@@ -17,12 +18,15 @@ use Maaz\LaravelZatca\Tenancy\Models\ZatcaTenantInvoiceState;
 class TenantOnboardingFlow
 {
     public function __construct(
-        protected ZatcaManager $manager
+        protected ZatcaManager $manager,
+        protected SimpleWorkspaceManager $simpleWorkspace
     ) {
     }
 
     public function findTenantOrFail(string $tenant): ZatcaTenant
     {
+        $this->simpleWorkspace->ensureWorkspace();
+
         return ZatcaTenant::query()
             ->with(['credentials', 'invoiceStates', 'notificationHooks'])
             ->whereKey($tenant)
@@ -32,6 +36,8 @@ class TenantOnboardingFlow
 
     public function listTenants(): Collection
     {
+        $this->simpleWorkspace->ensureWorkspace();
+
         return ZatcaTenant::query()
             ->with(['credentials', 'invoiceStates', 'notificationHooks'])
             ->orderBy('legal_name')

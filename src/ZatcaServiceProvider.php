@@ -60,6 +60,7 @@ use Maaz\LaravelZatca\Tenancy\Repositories\ConfigTenantConfigRepository;
 use Maaz\LaravelZatca\Tenancy\Repositories\DatabaseTenantConfigRepository;
 use Maaz\LaravelZatca\Tenancy\Stores\DatabaseTenantInvoiceStateStore;
 use Maaz\LaravelZatca\Tenancy\Stores\NullTenantInvoiceStateStore;
+use Maaz\LaravelZatca\Tenancy\SimpleWorkspaceManager;
 use Maaz\LaravelZatca\Tenancy\Resolvers\AuthenticatedUserTenantResolver;
 use Maaz\LaravelZatca\Tenancy\Resolvers\CompositeTenantResolver;
 use Maaz\LaravelZatca\Tenancy\Resolvers\NullTenantResolver;
@@ -240,7 +241,8 @@ class ZatcaServiceProvider extends ServiceProvider
 
         $this->app->singleton(TenantOnboardingFlow::class, function ($app): TenantOnboardingFlow {
             return new TenantOnboardingFlow(
-                $app->make(ZatcaManager::class)
+                $app->make(ZatcaManager::class),
+                $app->make(SimpleWorkspaceManager::class)
             );
         });
 

@@ -919,6 +919,7 @@
      data-dashboard-prefix='@json($dashboardPrefix)'
      data-can-manage-tenants='@json($canManageTenants)'
      data-show-tenant-switcher='@json($showTenantSwitcher)'
+     data-simple-mode='@json($simpleMode ?? false)'
      data-ui='@json($ui)'
      data-tenants='@json($tenants)'
      data-selected='@json($selectedTenant)'
@@ -1244,7 +1245,7 @@
         </div>
 
         <div class="grid workspace-view" data-view-panel="monitoring">
-            <section class="panel notifications">
+            <section class="panel notifications{{ ($showNotificationHooks ?? true) ? '' : ' hidden' }}">
                 <div class="panel-head">
                     <div>
                         <h3>{{ __('zatca::onboarding.notification_hooks') }}</h3>

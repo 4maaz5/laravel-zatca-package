@@ -24,10 +24,25 @@ return [
     */
     'default_tenant' => [
         'tenant_id' => 'default',
+        'key' => env('ZATCA_DEFAULT_TENANT_KEY', 'default'),
         'environment' => env('ZATCA_ENVIRONMENT', 'sandbox'),
+        'legal_name' => env('ZATCA_LEGAL_NAME', env('ZATCA_SELLER_NAME', 'ZATCA Workspace')),
+        'legal_name_ar' => env('ZATCA_LEGAL_NAME_AR'),
         'seller_name' => env('ZATCA_SELLER_NAME', ''),
+        'seller_name_ar' => env('ZATCA_SELLER_NAME_AR'),
         'seller_vat_number' => env('ZATCA_SELLER_VAT_NUMBER', ''),
+        'crn' => env('ZATCA_CRN'),
         'branch_name' => env('ZATCA_BRANCH_NAME'),
+        'branch_name_ar' => env('ZATCA_BRANCH_NAME_AR'),
+        'country_code' => env('ZATCA_COUNTRY_CODE', 'SA'),
+        'city' => env('ZATCA_CITY'),
+        'district' => env('ZATCA_DISTRICT'),
+        'street' => env('ZATCA_STREET'),
+        'building_number' => env('ZATCA_BUILDING_NUMBER'),
+        'additional_number' => env('ZATCA_ADDITIONAL_NUMBER'),
+        'postal_code' => env('ZATCA_POSTAL_CODE'),
+        'timezone' => env('ZATCA_TIMEZONE', 'Asia/Riyadh'),
+        'locale' => env('ZATCA_LOCALE', env('ZATCA_LANGUAGE', 'en')),
         'language' => env('ZATCA_LANGUAGE', 'en'),
         'certificates' => [
             'certificate' => env('ZATCA_CERTIFICATE'),
@@ -61,7 +76,19 @@ return [
             'phase2' => (bool) env('ZATCA_PHASE2_ENABLED', true),
             'multi_tenant' => (bool) env('ZATCA_MULTI_TENANT', false),
         ],
-        'meta' => [],
+        'meta' => [
+            'csr_defaults' => array_filter([
+                'common_name' => env('ZATCA_CSR_COMMON_NAME'),
+                'serial_number_prefix' => env('ZATCA_CSR_SERIAL_PREFIX'),
+                'organization_identifier' => env('ZATCA_CSR_ORGANIZATION_IDENTIFIER'),
+                'organization_name' => env('ZATCA_CSR_ORGANIZATION_NAME'),
+                'organization_unit_name' => env('ZATCA_CSR_ORGANIZATION_UNIT_NAME'),
+                'country_name' => env('ZATCA_CSR_COUNTRY_NAME'),
+                'invoice_type' => env('ZATCA_CSR_INVOICE_TYPE'),
+                'location_address' => env('ZATCA_CSR_LOCATION_ADDRESS'),
+                'industry_business_category' => env('ZATCA_CSR_INDUSTRY_BUSINESS_CATEGORY'),
+            ], static fn ($value): bool => $value !== null && $value !== ''),
+        ],
     ],
 
     /*
@@ -154,6 +181,11 @@ return [
     ],
 
     'onboarding' => [
+        'simple_mode' => [
+            'enabled' => (bool) env('ZATCA_ONBOARDING_SIMPLE_MODE', true),
+            'tenant_key' => env('ZATCA_ONBOARDING_SIMPLE_TENANT_KEY', env('ZATCA_DEFAULT_TENANT_KEY', 'default')),
+            'show_notification_hooks' => (bool) env('ZATCA_ONBOARDING_SIMPLE_SHOW_NOTIFICATION_HOOKS', false),
+        ],
         'api' => [
             'enabled' => (bool) env('ZATCA_ONBOARDING_API_ENABLED', true),
             'prefix' => env('ZATCA_ONBOARDING_API_PREFIX', 'api/zatca/onboarding'),

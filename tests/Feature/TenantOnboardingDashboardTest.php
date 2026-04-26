@@ -80,6 +80,31 @@ class TenantOnboardingDashboardTest extends TestCase
             ->assertSee('Another Company');
     }
 
+    public function test_simple_mode_auto_provisions_a_single_workspace_without_admin_controls(): void
+    {
+        config()->set('zatca.onboarding.simple_mode.enabled', true);
+        config()->set('zatca.onboarding.simple_mode.show_notification_hooks', false);
+        config()->set('zatca.default_tenant.key', 'default');
+        config()->set('zatca.default_tenant.legal_name', 'Simple BI Workspace');
+        config()->set('zatca.default_tenant.seller_name', 'Simple BI Workspace');
+        config()->set('zatca.default_tenant.seller_vat_number', '313138851500003');
+        config()->set('zatca.default_tenant.branch_name', 'Riyadh Branch');
+
+        $response = $this->get('/zatca/onboarding/dashboard?lang=en');
+
+        $response->assertOk()
+            ->assertSee('Simple BI Workspace')
+            ->assertDontSee('id="new-tenant-toggle"', false)
+            ->assertSee('data-simple-mode=\'true\'', false)
+            ->assertSee('class="panel notifications hidden"', false);
+
+        $this->assertDatabaseHas('zatca_tenants', [
+            'key' => 'default',
+            'legal_name' => 'Simple BI Workspace',
+            'vat_number' => '313138851500003',
+        ]);
+    }
+
     private function createTenant(string $key, string $sellerName, string $vatNumber): ZatcaTenant
     {
         $tenant = ZatcaTenant::query()->create([

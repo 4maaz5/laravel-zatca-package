@@ -12,13 +12,15 @@ use Maaz\LaravelZatca\Http\Resources\TenantOnboardingResource;
 use Maaz\LaravelZatca\Tenancy\Access\TenantAccessManager;
 use Maaz\LaravelZatca\Tenancy\Invoices\TenantInvoiceSubmissionFlow;
 use Maaz\LaravelZatca\Tenancy\Onboarding\TenantOnboardingFlow;
+use Maaz\LaravelZatca\Tenancy\SimpleWorkspaceManager;
 
 class TenantOnboardingDashboardController extends Controller
 {
     public function __construct(
         protected TenantOnboardingFlow $flow,
         protected TenantInvoiceSubmissionFlow $invoiceFlow,
-        protected TenantAccessManager $access
+        protected TenantAccessManager $access,
+        protected SimpleWorkspaceManager $simpleWorkspace
     ) {
     }
 
@@ -46,7 +48,8 @@ class TenantOnboardingDashboardController extends Controller
             ? TenantInvoiceResource::collection($this->invoiceFlow->listInvoices($selectedTenantModel))->resolve()
             : [];
 
-        $canManageTenants = $this->access->canManageTenants();
+        $simpleMode = $this->simpleWorkspace->enabled();
+        $canManageTenants = $simpleMode ? false : $this->access->canManageTenants();
         $showTenantSwitcher = $canManageTenants
             || (bool) config('zatca.onboarding.dashboard.show_tenant_switcher_for_tenant_users', false);
 
@@ -57,7 +60,9 @@ class TenantOnboardingDashboardController extends Controller
             'selectedTenant' => $selectedTenant,
             'selectedInvoices' => $selectedInvoices,
             'canManageTenants' => $canManageTenants,
-            'showTenantSwitcher' => $showTenantSwitcher,
+            'showTenantSwitcher' => $simpleMode ? false : $showTenantSwitcher,
+            'simpleMode' => $simpleMode,
+            'showNotificationHooks' => $simpleMode ? $this->simpleWorkspace->showNotificationHooks() : true,
             'apiPrefix' => '/' . ltrim((string) config('zatca.onboarding.api.prefix', 'api/zatca/onboarding'), '/'),
             'dashboardPrefix' => '/' . ltrim((string) config('zatca.onboarding.dashboard.prefix', 'zatca/onboarding/dashboard'), '/'),
         ]);
