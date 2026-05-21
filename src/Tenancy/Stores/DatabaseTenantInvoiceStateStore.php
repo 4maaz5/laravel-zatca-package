@@ -24,8 +24,7 @@ class DatabaseTenantInvoiceStateStore implements TenantInvoiceStateStore
         }
 
         $tenant = ZatcaTenant::query()
-            ->whereKey($tenantConfig->tenantId)
-            ->orWhere('key', $tenantConfig->tenantId)
+            ->whereTenantIdentifier($tenantConfig->tenantId)
             ->first();
 
         if (! $tenant instanceof ZatcaTenant) {

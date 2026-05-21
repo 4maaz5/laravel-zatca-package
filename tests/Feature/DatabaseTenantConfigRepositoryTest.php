@@ -76,6 +76,24 @@ class DatabaseTenantConfigRepositoryTest extends TestCase
         $this->assertSame('production_issued', $config->meta['onboarding_status']);
     }
 
+    public function test_non_numeric_tenant_keys_are_not_compared_to_bigint_ids(): void
+    {
+        $query = ZatcaTenant::query()->whereTenantIdentifier('bi-tech');
+
+        $this->assertStringContainsString('"key" = ?', $query->toSql());
+        $this->assertStringNotContainsString('"id" = ?', $query->toSql());
+        $this->assertSame(['bi-tech'], $query->getBindings());
+    }
+
+    public function test_numeric_tenant_identifiers_can_match_ids_or_keys(): void
+    {
+        $query = ZatcaTenant::query()->whereTenantIdentifier('123');
+
+        $this->assertStringContainsString('"id" = ?', $query->toSql());
+        $this->assertStringContainsString('"key" = ?', $query->toSql());
+        $this->assertSame(['123', '123'], $query->getBindings());
+    }
+
     public function test_migrations_create_expected_saas_tables(): void
     {
         $this->assertTrue(Schema::hasTable('zatca_tenants'));

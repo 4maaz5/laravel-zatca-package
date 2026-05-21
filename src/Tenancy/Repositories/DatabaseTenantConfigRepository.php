@@ -27,8 +27,7 @@ class DatabaseTenantConfigRepository implements TenantConfigRepository
 
         $tenantModel = ZatcaTenant::query()
             ->with(['credentials', 'invoiceStates'])
-            ->whereKey($tenant->id)
-            ->orWhere('key', $tenant->id)
+            ->whereTenantIdentifier($tenant->id)
             ->first();
 
         if (! $tenantModel instanceof ZatcaTenant) {
