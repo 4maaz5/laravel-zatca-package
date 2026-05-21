@@ -29,8 +29,7 @@ class TenantOnboardingFlow
 
         return ZatcaTenant::query()
             ->with(['credentials', 'invoiceStates', 'notificationHooks'])
-            ->whereKey($tenant)
-            ->orWhere('key', $tenant)
+            ->whereTenantIdentifier($tenant)
             ->firstOrFail();
     }
 

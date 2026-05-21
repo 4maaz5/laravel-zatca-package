@@ -38,8 +38,13 @@ class CredentialRotationService
         if ($tenant !== null && trim($tenant) !== '') {
             $query->join('zatca_tenants as tenants', 'tenants.id', '=', 'credentials.tenant_id')
                 ->where(static function ($builder) use ($tenant): void {
-                    $builder->where('tenants.key', $tenant)
-                        ->orWhere('credentials.tenant_id', $tenant);
+                    $tenant = trim($tenant);
+
+                    $builder->where('tenants.key', $tenant);
+
+                    if (preg_match('/^\d+$/', $tenant) === 1) {
+                        $builder->orWhere('credentials.tenant_id', $tenant);
+                    }
                 });
         }
 
