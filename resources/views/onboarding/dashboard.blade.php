@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('zatca::onboarding.title') }}</title>
     <style>
-        :root {
+#dashboard-app {
             --canvas: #f4efe6;
             --ink: #11212d;
             --ink-soft: #415865;
@@ -28,10 +28,12 @@
             --font-display: "Trebuchet MS", "Segoe UI Variable", "Noto Sans Arabic", sans-serif;
         }
 
-        * { box-sizing: border-box; }
+        #dashboard-app,
+        #dashboard-app * {
+            box-sizing: border-box;
+        }
 
-        body {
-            margin: 0;
+        #dashboard-app {
             font-family: var(--font-ui);
             color: var(--ink);
             background:
@@ -41,13 +43,13 @@
             min-height: 100vh;
         }
 
-        .shell {
+        #dashboard-app .shell {
             display: grid;
             grid-template-columns: 340px minmax(0, 1fr);
             min-height: 100vh;
         }
 
-        .sidebar {
+        #dashboard-app .sidebar {
             position: sticky;
             top: 0;
             min-height: 100vh;
@@ -58,13 +60,13 @@
             border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .brand {
+        #dashboard-app .brand {
             display: grid;
             gap: 10px;
             margin-bottom: 24px;
         }
 
-        .brand-badge {
+        #dashboard-app .brand-badge {
             width: 62px;
             height: 62px;
             display: grid;
@@ -77,42 +79,42 @@
             box-shadow: 0 14px 30px rgba(208, 98, 36, 0.35);
         }
 
-        .brand h1 {
+        #dashboard-app .brand h1 {
             margin: 0;
             font-family: var(--font-display);
             font-size: 1.3rem;
             line-height: 1.2;
         }
 
-        .brand p {
+        #dashboard-app .brand p {
             margin: 0;
             color: rgba(253, 248, 239, 0.72);
             line-height: 1.5;
             font-size: 0.95rem;
         }
 
-        .toolbar,
-        .locale-switch {
+        #dashboard-app .toolbar,
+        #dashboard-app .locale-switch {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
 
-        .sidebar-search {
+        #dashboard-app .sidebar-search {
             margin-top: 18px;
         }
 
-        .toolbar { margin-bottom: 18px; }
+        #dashboard-app .toolbar { margin-bottom: 18px; }
 
-        .button,
-        button,
-        .input,
-        select,
-        textarea {
+        #dashboard-app .button,
+        #dashboard-app button,
+        #dashboard-app .input,
+        #dashboard-app select,
+        #dashboard-app textarea {
             font: inherit;
         }
 
-        .button {
+        #dashboard-app .button {
             border: 0;
             border-radius: 999px;
             padding: 12px 16px;
@@ -125,40 +127,40 @@
             gap: 8px;
         }
 
-        .button:hover { transform: translateY(-1px); }
+        #dashboard-app .button:hover { transform: translateY(-1px); }
 
-        .button:disabled {
+        #dashboard-app .button:disabled {
             opacity: 0.56;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
-        .button-primary {
+        #dashboard-app .button-primary {
             background: linear-gradient(135deg, var(--accent), #f09f5a);
             color: white;
             box-shadow: 0 12px 24px rgba(208, 98, 36, 0.24);
         }
 
-        .button-secondary {
+        #dashboard-app .button-secondary {
             background: rgba(255, 255, 255, 0.08);
             color: #fff7ea;
             border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        .button-ghost {
+        #dashboard-app .button-ghost {
             background: rgba(17, 33, 45, 0.06);
             color: var(--ink);
             border: 1px solid var(--line);
         }
 
-        .tenant-list {
+        #dashboard-app .tenant-list {
             display: grid;
             gap: 12px;
             margin-top: 18px;
         }
 
-        .tenant-card {
+        #dashboard-app .tenant-card {
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 18px;
             padding: 16px;
@@ -167,38 +169,38 @@
             transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
         }
 
-        .tenant-card:hover,
-        .tenant-card.active {
+        #dashboard-app .tenant-card:hover,
+        #dashboard-app .tenant-card.active {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(240, 159, 90, 0.42);
             transform: translateY(-1px);
         }
 
-        .tenant-card h3 {
+        #dashboard-app .tenant-card h3 {
             margin: 0 0 6px;
             font-size: 1rem;
         }
 
-        .tenant-card p {
+        #dashboard-app .tenant-card p {
             margin: 0;
             color: rgba(253, 248, 239, 0.72);
             font-size: 0.9rem;
         }
 
-        .tenant-card small {
+        #dashboard-app .tenant-card small {
             display: block;
             margin-top: 10px;
             color: rgba(253, 248, 239, 0.6);
         }
 
-        .chips {
+        #dashboard-app .chips {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
             margin-top: 12px;
         }
 
-        .chip {
+        #dashboard-app .chip {
             padding: 6px 10px;
             border-radius: 999px;
             font-size: 0.8rem;
@@ -206,13 +208,13 @@
             color: rgba(255, 248, 234, 0.88);
         }
 
-        .main {
+        #dashboard-app .main {
             padding: 34px clamp(18px, 3vw, 36px);
             display: grid;
             gap: 20px;
         }
 
-        .hero {
+        #dashboard-app .hero {
             position: relative;
             overflow: hidden;
             border-radius: var(--radius-xl);
@@ -224,7 +226,7 @@
             box-shadow: var(--shadow);
         }
 
-        .hero::after {
+        #dashboard-app .hero::after {
             content: "";
             position: absolute;
             inset: auto -60px -80px auto;
@@ -234,7 +236,7 @@
             background: radial-gradient(circle, rgba(208, 98, 36, 0.2), transparent 68%);
         }
 
-        .hero h2 {
+        #dashboard-app .hero h2 {
             margin: 0;
             font-family: var(--font-display);
             font-size: clamp(1.8rem, 2vw, 2.5rem);
@@ -242,26 +244,26 @@
             max-width: 720px;
         }
 
-        .hero p {
+        #dashboard-app .hero p {
             margin: 12px 0 0;
             max-width: 760px;
             color: var(--ink-soft);
             line-height: 1.6;
         }
 
-        .hero-grid {
+        #dashboard-app .hero-grid {
             display: grid;
             grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr);
             gap: 18px;
             align-items: start;
         }
 
-        .hero-copy {
+        #dashboard-app .hero-copy {
             display: grid;
             gap: 10px;
         }
 
-        .hero-kicker {
+        #dashboard-app .hero-kicker {
             display: inline-flex;
             width: fit-content;
             padding: 7px 12px;
@@ -274,13 +276,13 @@
             font-weight: 700;
         }
 
-        .hero-metrics {
+        #dashboard-app .hero-metrics {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
         }
 
-        .hero-metric {
+        #dashboard-app .hero-metric {
             border-radius: 20px;
             padding: 16px;
             background: rgba(255, 255, 255, 0.72);
@@ -288,7 +290,7 @@
             box-shadow: 0 12px 24px rgba(17, 33, 45, 0.08);
         }
 
-        .hero-metric span {
+        #dashboard-app .hero-metric span {
             display: block;
             color: var(--ink-soft);
             font-size: 0.78rem;
@@ -296,20 +298,20 @@
             text-transform: uppercase;
         }
 
-        .hero-metric strong {
+        #dashboard-app .hero-metric strong {
             display: block;
             margin-top: 10px;
             font-size: 1rem;
             line-height: 1.3;
         }
 
-        .workspace-nav {
+        #dashboard-app .workspace-nav {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
 
-        .workspace-tab {
+        #dashboard-app .workspace-tab {
             border: 1px solid rgba(17, 33, 45, 0.1);
             background: rgba(255, 255, 255, 0.78);
             color: var(--ink);
@@ -319,29 +321,29 @@
             transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
         }
 
-        .workspace-tab:hover,
-        .workspace-tab.active {
+        #dashboard-app .workspace-tab:hover,
+        #dashboard-app .workspace-tab.active {
             transform: translateY(-1px);
             border-color: rgba(208, 98, 36, 0.3);
             background: linear-gradient(135deg, rgba(208, 98, 36, 0.12), rgba(240, 159, 90, 0.16));
             color: var(--accent);
         }
 
-        .grid {
+        #dashboard-app .grid {
             display: grid;
             grid-template-columns: repeat(12, minmax(0, 1fr));
             gap: 18px;
         }
 
-        .workspace-view {
+        #dashboard-app .workspace-view {
             display: none;
         }
 
-        .workspace-view.active {
+        #dashboard-app .workspace-view.active {
             display: grid;
         }
 
-        .panel {
+        #dashboard-app .panel {
             grid-column: span 12;
             background: var(--card);
             border: 1px solid rgba(255, 255, 255, 0.72);
@@ -351,12 +353,12 @@
             box-shadow: var(--shadow);
         }
 
-        .panel h3 {
+        #dashboard-app .panel h3 {
             margin: 0 0 14px;
             font-size: 1.05rem;
         }
 
-        .panel-head {
+        #dashboard-app .panel-head {
             display: flex;
             justify-content: space-between;
             gap: 12px;
@@ -364,69 +366,69 @@
             margin-bottom: 16px;
         }
 
-        .panel-head p {
+        #dashboard-app .panel-head p {
             margin: 4px 0 0;
             color: var(--ink-soft);
             line-height: 1.5;
         }
 
-        .panel.profile { grid-column: span 7; }
-        .panel.actions { grid-column: span 5; }
-        .panel.invoice-submit { grid-column: span 7; }
-        .panel.invoice-history { grid-column: span 5; }
-        .panel.alerts { grid-column: span 12; }
-        .panel.notifications { grid-column: span 12; }
-        .panel.health,
-        .panel.credentials,
-        .panel.invoice-state { grid-column: span 4; }
+        #dashboard-app .panel.profile { grid-column: span 7; }
+        #dashboard-app .panel.actions { grid-column: span 5; }
+        #dashboard-app .panel.invoice-submit { grid-column: span 7; }
+        #dashboard-app .panel.invoice-history { grid-column: span 5; }
+        #dashboard-app .panel.alerts { grid-column: span 12; }
+        #dashboard-app .panel.notifications { grid-column: span 12; }
+        #dashboard-app .panel.health,
+        #dashboard-app .panel.credentials,
+        #dashboard-app .panel.invoice-state { grid-column: span 4; }
 
-        .metrics {
+        #dashboard-app .metrics {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 12px;
         }
 
-        .metric {
+        #dashboard-app .metric {
             border-radius: 18px;
             padding: 16px;
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(245, 238, 226, 0.88));
             border: 1px solid var(--line);
         }
 
-        .metric-label {
+        #dashboard-app .metric-label {
             font-size: 0.78rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--ink-soft);
         }
 
-        .metric-value {
+        #dashboard-app .metric-value {
             margin-top: 8px;
             font-size: 1.1rem;
             font-weight: 700;
         }
 
-        .form-grid {
+        #dashboard-app .form-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 14px;
         }
 
-        .field {
+        #dashboard-app .field {
             display: grid;
             gap: 8px;
         }
 
-        .field.span-2 { grid-column: span 2; }
+        #dashboard-app .field.span-2 { grid-column: span 2; }
 
-        .field label {
+        #dashboard-app .field label {
             font-size: 0.86rem;
             color: var(--ink-soft);
         }
 
-        .input,
-        select,
-        textarea {
+        #dashboard-app .input,
+        #dashboard-app select,
+        #dashboard-app textarea {
             width: 100%;
             border-radius: 14px;
             border: 1px solid rgba(17, 33, 45, 0.12);
@@ -435,23 +437,23 @@
             color: var(--ink);
         }
 
-        textarea { min-height: 90px; resize: vertical; }
+        #dashboard-app textarea { min-height: 90px; resize: vertical; }
 
-        .stack {
+        #dashboard-app .stack {
             display: grid;
             gap: 14px;
         }
 
-        .credential-card,
-        .health-card,
-        .state-card {
+        #dashboard-app .credential-card,
+        #dashboard-app .health-card,
+        #dashboard-app .state-card {
             border-radius: 18px;
             padding: 16px;
             border: 1px solid var(--line);
             background: rgba(255, 255, 255, 0.74);
         }
 
-        .status-pill {
+        #dashboard-app .status-pill {
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -461,11 +463,11 @@
             font-weight: 600;
         }
 
-        .status-healthy { background: rgba(34, 116, 83, 0.12); color: var(--success); }
-        .status-warning { background: rgba(192, 127, 31, 0.12); color: var(--warning); }
-        .status-error { background: rgba(187, 62, 62, 0.12); color: var(--danger); }
+        #dashboard-app .status-healthy { background: rgba(34, 116, 83, 0.12); color: var(--success); }
+        #dashboard-app .status-warning { background: rgba(192, 127, 31, 0.12); color: var(--warning); }
+        #dashboard-app .status-error { background: rgba(187, 62, 62, 0.12); color: var(--danger); }
 
-        .issue-list {
+        #dashboard-app .issue-list {
             margin: 12px 0 0;
             padding: 0;
             list-style: none;
@@ -473,38 +475,38 @@
             gap: 8px;
         }
 
-        .issue-list li {
+        #dashboard-app .issue-list li {
             border-radius: 12px;
             padding: 10px 12px;
             background: rgba(17, 33, 45, 0.04);
             color: var(--ink-soft);
         }
 
-        .filter-row {
+        #dashboard-app .filter-row {
             display: grid;
             grid-template-columns: 1.5fr 1fr 1fr;
             gap: 12px;
             margin-bottom: 14px;
         }
 
-        .filter-row.compact {
+        #dashboard-app .filter-row.compact {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             align-items: end;
         }
 
-        .filter-actions {
+        #dashboard-app .filter-actions {
             grid-column: span 2;
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
 
-        .filter-actions .button {
+        #dashboard-app .filter-actions .button {
             flex: 1 1 180px;
             min-width: 0;
         }
 
-        .pagination-row {
+        #dashboard-app .pagination-row {
             margin-top: 14px;
             display: flex;
             align-items: center;
@@ -513,33 +515,33 @@
             flex-wrap: wrap;
         }
 
-        .pagination-row p {
+        #dashboard-app .pagination-row p {
             margin: 0;
             color: var(--ink-soft);
         }
 
-        .hook-card {
+        #dashboard-app .hook-card {
             border-radius: 18px;
             padding: 16px;
             border: 1px solid var(--line);
             background: rgba(255, 255, 255, 0.82);
         }
 
-        .step-card {
+        #dashboard-app .step-card {
             border-radius: 20px;
             padding: 18px;
             border: 1px solid var(--line);
             background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248, 243, 234, 0.92));
         }
 
-        .step-head {
+        #dashboard-app .step-head {
             display: flex;
             gap: 14px;
             align-items: start;
             margin-bottom: 14px;
         }
 
-        .step-badge {
+        #dashboard-app .step-badge {
             width: 38px;
             height: 38px;
             border-radius: 14px;
@@ -550,59 +552,59 @@
             font-weight: 800;
         }
 
-        .step-head h4 {
+        #dashboard-app .step-head h4 {
             margin: 0;
             font-size: 1rem;
         }
 
-        .step-head p {
+        #dashboard-app .step-head p {
             margin: 4px 0 0;
             color: var(--ink-soft);
             line-height: 1.5;
         }
 
-        details.advanced {
+        #dashboard-app details.advanced {
             margin-top: 12px;
             padding-top: 10px;
             border-top: 1px dashed rgba(17, 33, 45, 0.12);
         }
 
-        details.advanced summary {
+        #dashboard-app details.advanced summary {
             cursor: pointer;
             color: var(--teal);
             font-weight: 600;
             margin-bottom: 12px;
         }
 
-        .alert-card {
+        #dashboard-app .alert-card {
             border-radius: 18px;
             padding: 16px;
             border: 1px solid var(--line);
             background: rgba(255, 255, 255, 0.82);
         }
 
-        .alert-card.warning {
+        #dashboard-app .alert-card.warning {
             border-color: rgba(192, 127, 31, 0.25);
             background: rgba(255, 246, 229, 0.92);
         }
 
-        .alert-card.error {
+        #dashboard-app .alert-card.error {
             border-color: rgba(187, 62, 62, 0.25);
             background: rgba(255, 241, 241, 0.94);
         }
 
-        .alert-card h4 {
+        #dashboard-app .alert-card h4 {
             margin: 0 0 8px;
             font-size: 0.96rem;
         }
 
-        .alert-card p {
+        #dashboard-app .alert-card p {
             margin: 0;
             color: var(--ink-soft);
             line-height: 1.55;
         }
 
-        .check-row {
+        #dashboard-app .check-row {
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
@@ -610,18 +612,18 @@
             color: var(--ink-soft);
         }
 
-        .check-row label {
+        #dashboard-app .check-row label {
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
-        .meta-list {
+        #dashboard-app .meta-list {
             display: grid;
             gap: 10px;
         }
 
-        .meta-row {
+        #dashboard-app .meta-row {
             display: flex;
             justify-content: space-between;
             gap: 12px;
@@ -630,11 +632,11 @@
             padding-bottom: 10px;
         }
 
-        .meta-row:last-child { border-bottom: 0; padding-bottom: 0; }
+        #dashboard-app .meta-row:last-child { border-bottom: 0; padding-bottom: 0; }
 
-        .meta-row span:first-child { color: var(--ink-soft); }
+        #dashboard-app .meta-row span:first-child { color: var(--ink-soft); }
 
-        .notice {
+        #dashboard-app .notice {
             border-radius: 18px;
             padding: 14px 16px;
             background: rgba(13, 124, 128, 0.08);
@@ -642,12 +644,12 @@
             color: var(--ink);
         }
 
-        .notice.warning {
+        #dashboard-app .notice.warning {
             background: rgba(192, 127, 31, 0.1);
             border-color: rgba(192, 127, 31, 0.24);
         }
 
-        .response-box {
+        #dashboard-app .response-box {
             white-space: pre-wrap;
             word-break: break-word;
             border-radius: 18px;
@@ -660,14 +662,14 @@
             line-height: 1.55;
         }
 
-        .invoice-actions {
+        #dashboard-app .invoice-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 14px;
         }
 
-        .link-button {
+        #dashboard-app .link-button {
             border: 1px solid var(--line);
             border-radius: 999px;
             padding: 9px 12px;
@@ -676,7 +678,7 @@
             background: rgba(255, 255, 255, 0.7);
         }
 
-        .drawer {
+        #dashboard-app .drawer {
             position: fixed;
             inset: 0;
             display: grid;
@@ -686,7 +688,7 @@
             z-index: 40;
         }
 
-        .drawer-panel {
+        #dashboard-app .drawer-panel {
             width: min(760px, 100vw);
             height: 100vh;
             overflow: auto;
@@ -697,25 +699,25 @@
             gap: 18px;
         }
 
-        .drawer-meta {
+        #dashboard-app .drawer-meta {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px 14px;
         }
 
-        .drawer-card {
+        #dashboard-app .drawer-card {
             border-radius: 18px;
             border: 1px solid var(--line);
             background: rgba(255, 255, 255, 0.8);
             padding: 16px;
         }
 
-        .drawer-card h4 {
+        #dashboard-app .drawer-card h4 {
             margin: 0 0 12px;
             font-size: 0.95rem;
         }
 
-        .drawer-card pre {
+        #dashboard-app .drawer-card pre {
             margin: 0;
             white-space: pre-wrap;
             word-break: break-word;
@@ -724,31 +726,31 @@
             color: var(--ink-soft);
         }
 
-        .hidden { display: none !important; }
+        #dashboard-app .hidden { display: none !important; }
 
         @media (max-width: 1200px) {
-            .panel.profile,
-            .panel.actions,
-            .panel.invoice-submit,
-            .panel.invoice-history,
-            .panel.health,
-            .panel.credentials,
-            .panel.invoice-state { grid-column: span 12; }
+            #dashboard-app .panel.profile,
+        #dashboard-app .panel.actions,
+        #dashboard-app .panel.invoice-submit,
+        #dashboard-app .panel.invoice-history,
+        #dashboard-app .panel.health,
+        #dashboard-app .panel.credentials,
+        #dashboard-app .panel.invoice-state { grid-column: span 12; }
         }
 
         @media (max-width: 900px) {
-            .shell { grid-template-columns: 1fr; }
-            .sidebar { position: static; min-height: auto; }
-            .hero-grid { grid-template-columns: 1fr; }
+            #dashboard-app .shell { grid-template-columns: 1fr; }
+            #dashboard-app .sidebar { position: static; min-height: auto; }
+            #dashboard-app .hero-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 720px) {
-            .metrics,
-            .form-grid { grid-template-columns: 1fr; }
-            .filter-row { grid-template-columns: 1fr; }
-            .field.span-2 { grid-column: span 1; }
-            .main { padding: 20px 14px 30px; }
-            .sidebar { padding: 18px 14px; }
+            #dashboard-app .metrics,
+        #dashboard-app .form-grid { grid-template-columns: 1fr; }
+            #dashboard-app .filter-row { grid-template-columns: 1fr; }
+            #dashboard-app .field.span-2 { grid-column: span 1; }
+            #dashboard-app .main { padding: 20px 14px 30px; }
+            #dashboard-app .sidebar { padding: 18px 14px; }
         }
     </style>
 </head>
@@ -912,7 +914,7 @@
             : 'Choose an environment to check invoice readiness.',
     ];
 @endphp
-<div class="shell" id="dashboard-app"
+<div id="dashboard-app"
      data-locale='@json($locale)'
      data-direction='@json($direction)'
      data-api-prefix='@json($apiPrefix)'
@@ -924,6 +926,7 @@
      data-tenants='@json($tenants)'
      data-selected='@json($selectedTenant)'
      data-invoices='@json($selectedInvoices)'>
+    <div class="shell">
     <aside class="sidebar">
         <div class="brand">
             <div class="brand-badge">ZT</div>
@@ -1282,7 +1285,7 @@
             </section>
         </div>
     </main>
-</div>
+    </div>
 
 <div class="drawer hidden" id="invoice-drawer">
     <aside class="drawer-panel">
@@ -1308,6 +1311,7 @@
             <pre id="invoice-drawer-response"></pre>
         </div>
     </aside>
+</div>
 </div>
 
 <script>
@@ -1343,8 +1347,8 @@
     const createTenantPanel = document.getElementById('create-tenant-panel');
     const newTenantToggle = document.getElementById('new-tenant-toggle');
     const tenantStatusPill = document.getElementById('tenant-status-pill');
-    const workspaceTabs = Array.from(document.querySelectorAll('[data-view]'));
-    const workspacePanels = Array.from(document.querySelectorAll('[data-view-panel]'));
+    const workspaceTabs = Array.from(app.querySelectorAll('[data-view]'));
+    const workspacePanels = Array.from(app.querySelectorAll('[data-view-panel]'));
     const tenantSearch = document.getElementById('tenant-search');
     const healthStack = document.getElementById('health-stack');
     const credentialStack = document.getElementById('credential-stack');
