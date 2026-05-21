@@ -74,7 +74,7 @@ class CheckTenantHealthCommand extends Command
 
         return ZatcaTenant::query()
             ->when($tenant !== null, static function ($query) use ($tenant): void {
-                $query->whereKey($tenant)->orWhere('key', $tenant);
+                $query->whereTenantIdentifier($tenant);
             })
             ->orderBy('id')
             ->get();
