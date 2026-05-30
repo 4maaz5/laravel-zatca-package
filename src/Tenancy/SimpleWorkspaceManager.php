@@ -103,7 +103,7 @@ class SimpleWorkspaceManager
                 }
             }
 
-            foreach (['sandbox', 'production'] as $environment) {
+            foreach (['sandbox', 'simulation', 'production'] as $environment) {
                 ZatcaTenantCredential::query()->firstOrCreate([
                     'tenant_id' => $tenant->getKey(),
                     'environment' => $environment,

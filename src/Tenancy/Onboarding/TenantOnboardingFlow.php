@@ -71,7 +71,7 @@ class TenantOnboardingFlow
                 'metadata' => $payload['metadata'] ?? [],
             ]);
 
-            foreach (['sandbox', 'production'] as $environment) {
+            foreach (['sandbox', 'simulation', 'production'] as $environment) {
                 ZatcaTenantCredential::query()->create([
                     'tenant_id' => $tenant->getKey(),
                     'environment' => $environment,

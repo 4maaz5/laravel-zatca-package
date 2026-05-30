@@ -48,12 +48,14 @@ class DatabaseTenantConfigRepository implements TenantConfigRepository
             ? ($tenantModel->branch_name_ar ?: $tenantModel->branch_name)
             : ($tenantModel->branch_name ?: $tenantModel->branch_name_ar);
 
-        $certificate = $credential?->production_binary_security_token
-            ?: $credential?->compliance_binary_security_token
-            ?: null;
-        $apiSecret = $credential?->production_secret
-            ?: $credential?->compliance_secret
-            ?: null;
+        $hasComplianceCsid = ! empty($credential?->compliance_binary_security_token) && ! empty($credential?->compliance_secret);
+        $hasProductionCsid = ! empty($credential?->production_binary_security_token) && ! empty($credential?->production_secret);
+        $certificate = $hasProductionCsid
+            ? $credential?->production_binary_security_token
+            : ($credential?->compliance_binary_security_token ?: null);
+        $apiSecret = $hasProductionCsid
+            ? $credential?->production_secret
+            : ($credential?->compliance_secret ?: null);
 
         $tenantConfig = [
             'tenant_id' => (string) $tenantModel->getKey(),
@@ -89,6 +91,8 @@ class DatabaseTenantConfigRepository implements TenantConfigRepository
                 'crn' => $tenantModel->crn,
                 'onboarding_status' => $tenantModel->onboarding_status,
                 'credentials_status' => $credential?->status,
+                'has_compliance_csid' => $hasComplianceCsid,
+                'has_production_csid' => $hasProductionCsid,
                 'compliance_request_id' => $credential?->compliance_request_id,
                 'icv' => $invoiceState?->last_icv ? (string) ($invoiceState->last_icv + 1) : null,
                 'pih' => $invoiceState?->previous_invoice_hash,

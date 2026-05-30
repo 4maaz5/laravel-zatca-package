@@ -34,7 +34,7 @@ class StoreTenantOnboardingRequest extends FormRequest
             'postal_code' => ['nullable', 'string', 'max:50'],
             'locale' => ['nullable', 'string', 'in:en,ar'],
             'timezone' => ['nullable', 'string', 'max:100'],
-            'default_environment' => ['nullable', 'string', 'in:sandbox,production'],
+            'default_environment' => ['nullable', 'string', 'in:sandbox,simulation,production'],
             'metadata' => ['nullable', 'array'],
         ];
     }

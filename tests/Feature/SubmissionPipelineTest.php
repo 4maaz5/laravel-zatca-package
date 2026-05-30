@@ -134,6 +134,12 @@ class SubmissionPipelineTest extends TestCase
         $this->assertSame('UBLExtensions', $document->documentElement?->firstChild?->localName);
         $this->assertNotSame('', $xpath->evaluate('string(//ds:SignatureValue)'));
         $this->assertSame($result->invoiceHash, $xpath->evaluate('string(//ds:Reference[@URI=""]/ds:DigestValue)'));
+        $signedProperties = $xpath->query('//*[@Id="xadesSignedProperties"]')->item(0);
+        $this->assertNotNull($signedProperties);
+        $this->assertSame(
+            base64_encode(hash('sha256', $signedProperties->C14N(false, false), true)),
+            $xpath->evaluate('string(//ds:Reference[@URI="#xadesSignedProperties"]/ds:DigestValue)')
+        );
         $this->assertSame($result->qrCode, $xpath->evaluate('string(/invoice:Invoice/cac:AdditionalDocumentReference[cbc:ID="QR"]/cac:Attachment/cbc:EmbeddedDocumentBinaryObject)'));
         $this->assertSame('text/plain', $xpath->evaluate('string(/invoice:Invoice/cac:AdditionalDocumentReference[cbc:ID="QR"]/cac:Attachment/cbc:EmbeddedDocumentBinaryObject/@mimeCode)'));
     }
@@ -201,6 +207,46 @@ class SubmissionPipelineTest extends TestCase
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('authentication certificate');
+
+        $pipeline->submit($invoice, $tenantConfig, 'reporting');
+    }
+
+    public function test_it_rejects_submission_when_only_compliance_csid_is_available(): void
+    {
+        $tenantConfig = TenantConfig::fromArray([
+            'tenant_id' => 'tenant-1',
+            'environment' => 'simulation',
+            'seller_name' => 'Maaz Store',
+            'seller_vat_number' => '300000000000003',
+            'meta' => [
+                'has_compliance_csid' => true,
+                'has_production_csid' => false,
+            ],
+        ]);
+
+        $invoice = Zatca::invoice()
+            ->invoiceNumber('INV-COMPLIANCE-ONLY-1')
+            ->seller(['name' => 'Maaz Store', 'vat_number' => '300000000000003'])
+            ->addItem(['name' => 'Item', 'quantity' => 1, 'unit_price' => 100, 'tax_percent' => 15])
+            ->generate();
+
+        $pipeline = new SubmissionPipeline(
+            new UblInvoiceBuilder(),
+            new SignatureService(new CertificateLoader(), new ZatcaInvoiceHashGenerator()),
+            new Phase2QrCodeService(new TlvEncoder(), new CertificateLoader(), new ZatcaInvoiceHashGenerator()),
+            new class implements ApiClient {
+                public function submit(array $payload, TenantConfig $tenantConfig, string $mode): array
+                {
+                    return ['success' => true];
+                }
+            },
+            new ZatcaInvoiceHashGenerator(),
+            new ZatcaLogger($this->app->make(LogManager::class)),
+            new CertificateLoader(),
+            new NullTenantInvoiceStateStore()
+        );
+
+        $this->expectException(ApiException::class);
 
         $pipeline->submit($invoice, $tenantConfig, 'reporting');
     }

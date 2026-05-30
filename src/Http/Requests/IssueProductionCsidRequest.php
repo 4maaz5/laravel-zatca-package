@@ -16,7 +16,7 @@ class IssueProductionCsidRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'environment' => ['nullable', 'string', 'in:sandbox,production'],
+            'environment' => ['nullable', 'string', 'in:sandbox,simulation,production'],
         ];
     }
 }

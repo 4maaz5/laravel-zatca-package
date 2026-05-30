@@ -71,6 +71,47 @@ class FatooraOnboardingClientTest extends TestCase
         });
     }
 
+    public function test_it_uses_environment_specific_default_onboarding_endpoints(): void
+    {
+        Http::fake([
+            'https://gw-fatoora.zatca.gov.sa/e-invoicing/core/production/csids' => Http::response([
+                'binarySecurityToken' => 'production-token',
+                'secret' => 'production-secret',
+            ], 200),
+            'https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/compliance' => Http::response([
+                'requestID' => 123,
+                'binarySecurityToken' => 'compliance-token',
+                'secret' => 'compliance-secret',
+            ], 200),
+        ]);
+
+        $client = $this->client();
+
+        $client->requestProductionCsid([
+            'compliance_request_id' => '123',
+            'binary_security_token' => 'compliance-token',
+            'secret' => 'compliance-secret',
+        ], $this->tenantConfig([
+            'environment' => 'production',
+            'api' => [
+                'base_url' => null,
+            ],
+        ]));
+
+        $client->requestComplianceCsid([
+            'otp' => '123345',
+            'csr' => 'base64-csr',
+        ], $this->tenantConfig([
+            'environment' => 'simulation',
+            'api' => [
+                'base_url' => null,
+            ],
+        ]));
+
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://gw-fatoora.zatca.gov.sa/e-invoicing/core/production/csids');
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/compliance');
+    }
+
     private function client(): FatooraOnboardingClient
     {
         return new FatooraOnboardingClient(
@@ -79,9 +120,9 @@ class FatooraOnboardingClientTest extends TestCase
         );
     }
 
-    private function tenantConfig(): TenantConfig
+    private function tenantConfig(array $overrides = []): TenantConfig
     {
-        return TenantConfig::fromArray([
+        return TenantConfig::fromArray(array_replace_recursive([
             'tenant_id' => 'tenant-1',
             'environment' => 'sandbox',
             'seller_name' => 'Maaz Store',
@@ -94,6 +135,6 @@ class FatooraOnboardingClientTest extends TestCase
                 'accept_version' => 'V2',
                 'timeout' => 30,
             ],
-        ]);
+        ], $overrides));
     }
 }

@@ -16,7 +16,7 @@ class GenerateTenantCsrRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'environment' => ['nullable', 'string', 'in:sandbox,production'],
+            'environment' => ['nullable', 'string', 'in:sandbox,simulation,production'],
             'common_name' => ['required', 'string', 'max:255'],
             'serial_number' => ['required', 'string', 'max:255'],
             'organization_identifier' => ['nullable', 'string', 'max:50'],

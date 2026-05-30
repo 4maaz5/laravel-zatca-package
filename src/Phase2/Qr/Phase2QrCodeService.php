@@ -251,7 +251,7 @@ class Phase2QrCodeService implements Phase2QrCodeGenerator
             ? CarbonImmutable::parse($invoice->issuedAt)
             : CarbonImmutable::now();
 
-        return $issuedAt->format('Y-m-d\TH:i:s');
+        return $issuedAt->format('Y-m-d\TH:i:sP');
     }
 
     protected function formatAmount(float $amount): string

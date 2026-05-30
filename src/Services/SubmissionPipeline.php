@@ -78,6 +78,8 @@ class SubmissionPipeline implements SubmissionPipelineContract
 
     public function submit(InvoiceData $invoice, TenantConfig $tenantConfig, string $mode): SubmissionResult
     {
+        $this->assertProductionCsidIsAvailable($tenantConfig);
+
         $preparedInvoice = $this->prepare($invoice, $tenantConfig);
         $this->assertAuthenticationCertificateMatchesInvoice($invoice, $tenantConfig);
 
@@ -117,6 +119,13 @@ class SubmissionPipeline implements SubmissionPipelineContract
             apiResponse: $apiResponse,
             tenantConfig: $tenantConfig
         );
+    }
+
+    private function assertProductionCsidIsAvailable(TenantConfig $tenantConfig): void
+    {
+        if (($tenantConfig->meta['has_production_csid'] ?? null) === false) {
+            throw new ApiException((string) trans('zatca::exceptions.production_csid_missing_compliance_material'));
+        }
     }
 
     private function assertAuthenticationCertificateMatchesInvoice(InvoiceData $invoice, TenantConfig $tenantConfig): void

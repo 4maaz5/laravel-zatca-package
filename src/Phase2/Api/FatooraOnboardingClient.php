@@ -134,7 +134,7 @@ class FatooraOnboardingClient implements OnboardingClient
             return $url;
         }
 
-        $baseUrl = rtrim((string) ($tenantConfig->api['base_url'] ?? ''), '/');
+        $baseUrl = $this->resolveBaseUrl($tenantConfig);
         $path = match ($key) {
             'compliance_csid_url' => '/compliance',
             'production_csid_url' => '/production/csids',
@@ -147,6 +147,21 @@ class FatooraOnboardingClient implements OnboardingClient
         }
 
         return $baseUrl . $path;
+    }
+
+    protected function resolveBaseUrl(TenantConfig $tenantConfig): string
+    {
+        $configured = rtrim((string) ($tenantConfig->api['base_url'] ?? ''), '/');
+
+        if ($configured !== '') {
+            return $configured;
+        }
+
+        return match ($tenantConfig->environment) {
+            'production' => 'https://gw-fatoora.zatca.gov.sa/e-invoicing/core',
+            'simulation' => 'https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation',
+            default => 'https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal',
+        };
     }
 
     /**

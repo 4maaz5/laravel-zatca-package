@@ -257,7 +257,7 @@ class SignatureService implements InvoiceSigner
             throw new SignatureException((string) trans('zatca::exceptions.signature_failed'));
         }
 
-        return base64_encode(hash('sha256', $canonical));
+        return base64_encode(hash('sha256', $canonical, true));
     }
 
     protected function firstElementByLocalName(DOMElement $element, string $localName): DOMElement

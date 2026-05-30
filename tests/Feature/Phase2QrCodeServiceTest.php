@@ -85,7 +85,7 @@ class Phase2QrCodeServiceTest extends TestCase
 
         $this->assertSame('Maaz Store', $fields[1]);
         $this->assertSame('300000000000003', $fields[2]);
-        $this->assertSame('2026-04-13T10:30:00', $fields[3]);
+        $this->assertSame('2026-04-13T10:30:00+03:00', $fields[3]);
         $this->assertSame('115.00', $fields[4]);
         $this->assertSame('15.00', $fields[5]);
         $this->assertSame($invoiceHash, $fields[6]);

@@ -33,7 +33,7 @@ class UpdateTenantOnboardingRequest extends FormRequest
             'postal_code' => ['sometimes', 'nullable', 'string', 'max:50'],
             'locale' => ['sometimes', 'string', 'in:en,ar'],
             'timezone' => ['sometimes', 'string', 'max:100'],
-            'default_environment' => ['sometimes', 'string', 'in:sandbox,production'],
+            'default_environment' => ['sometimes', 'string', 'in:sandbox,simulation,production'],
             'is_active' => ['sometimes', 'boolean'],
             'metadata' => ['sometimes', 'array'],
         ];

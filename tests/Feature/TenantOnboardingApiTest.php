@@ -50,8 +50,8 @@ class TenantOnboardingApiTest extends TestCase
 
         $show->assertOk()
             ->assertJsonPath('data.vat_number', '313138851500003')
-            ->assertJsonCount(2, 'data.credentials')
-            ->assertJsonCount(2, 'data.invoice_states')
+            ->assertJsonCount(3, 'data.credentials')
+            ->assertJsonCount(3, 'data.invoice_states')
             ->assertJsonPath('data.credentials.0.health.status', 'warning');
 
         $index = $this->getJson('/api/zatca/onboarding/tenants');

@@ -52,7 +52,7 @@ return [
             'secret' => env('ZATCA_SECRET'),
         ],
         'api' => [
-            'base_url' => env('ZATCA_API_BASE_URL', 'https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal'),
+            'base_url' => env('ZATCA_API_BASE_URL'),
             'compliance_url' => env('ZATCA_API_COMPLIANCE_URL'),
             'clearance_url' => env('ZATCA_API_CLEARANCE_URL'),
             'reporting_url' => env('ZATCA_API_REPORTING_URL'),

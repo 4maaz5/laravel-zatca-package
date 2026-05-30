@@ -93,9 +93,40 @@ class FatooraApiClientTest extends TestCase
         ], $this->tenantConfig(), 'reporting');
     }
 
-    private function tenantConfig(): TenantConfig
+    public function test_it_uses_environment_specific_default_submission_endpoints(): void
     {
-        return TenantConfig::fromArray([
+        Http::fake([
+            'https://gw-fatoora.zatca.gov.sa/e-invoicing/core/invoices/clearance/single' => Http::response([], 200),
+            'https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/invoices/reporting/single' => Http::response([], 200),
+        ]);
+
+        $client = new FatooraApiClient($this->app->make(\Illuminate\Http\Client\Factory::class), new ZatcaLogger($this->app->make(LogManager::class)));
+
+        $client->submit(['invoiceHash' => 'hash', 'uuid' => 'uuid-prod', 'invoice' => 'xml'], $this->tenantConfig([
+            'environment' => 'production',
+            'api' => [
+                'base_url' => null,
+                'client_id' => 'client-id',
+                'client_secret' => 'client-secret',
+            ],
+        ]), 'clearance');
+
+        $client->submit(['invoiceHash' => 'hash', 'uuid' => 'uuid-sim', 'invoice' => 'xml'], $this->tenantConfig([
+            'environment' => 'simulation',
+            'api' => [
+                'base_url' => null,
+                'client_id' => 'client-id',
+                'client_secret' => 'client-secret',
+            ],
+        ]), 'reporting');
+
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://gw-fatoora.zatca.gov.sa/e-invoicing/core/invoices/clearance/single');
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/invoices/reporting/single');
+    }
+
+    private function tenantConfig(array $overrides = []): TenantConfig
+    {
+        return TenantConfig::fromArray(array_replace_recursive([
             'tenant_id' => 'tenant-1',
             'environment' => 'sandbox',
             'seller_name' => 'Maaz Store',
@@ -112,6 +143,6 @@ class FatooraApiClientTest extends TestCase
                 ],
                 'timeout' => 30,
             ],
-        ]);
+        ], $overrides));
     }
 }

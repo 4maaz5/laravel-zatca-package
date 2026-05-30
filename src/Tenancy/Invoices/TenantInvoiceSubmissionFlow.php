@@ -113,7 +113,7 @@ class TenantInvoiceSubmissionFlow
             ];
         }
 
-        if (empty($credential->compliance_binary_security_token) && empty($credential->production_binary_security_token)) {
+        if (empty($credential->production_binary_security_token) || empty($credential->production_secret)) {
             return [
                 'ready' => false,
                 'environment' => $resolvedEnvironment,

@@ -112,7 +112,7 @@ class FatooraApiClient implements ApiClient
 
     protected function resolveEndpoint(TenantConfig $tenantConfig, string $mode): string
     {
-        $baseUrl = rtrim((string) ($tenantConfig->api['base_url'] ?? ''), '/');
+        $baseUrl = $this->resolveBaseUrl($tenantConfig);
 
         return match ($mode) {
             'clearance' => (string) (
@@ -124,6 +124,21 @@ class FatooraApiClient implements ApiClient
                 ?? ($baseUrl !== '' ? $baseUrl . '/invoices/reporting/single' : '')
             ),
             default => throw new InvalidArgumentException(sprintf('Unsupported API submission mode: %s', $mode)),
+        };
+    }
+
+    protected function resolveBaseUrl(TenantConfig $tenantConfig): string
+    {
+        $configured = rtrim((string) ($tenantConfig->api['base_url'] ?? ''), '/');
+
+        if ($configured !== '') {
+            return $configured;
+        }
+
+        return match ($tenantConfig->environment) {
+            'production' => 'https://gw-fatoora.zatca.gov.sa/e-invoicing/core',
+            'simulation' => 'https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation',
+            default => 'https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal',
         };
     }
 

@@ -16,7 +16,7 @@ class SubmitTenantInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'environment' => ['nullable', 'string', 'in:sandbox,production'],
+            'environment' => ['nullable', 'string', 'in:sandbox,simulation,production'],
             'mode' => ['required', 'string', 'in:reporting,clearance'],
             'invoice_number' => ['nullable', 'string', 'max:100'],
             'issued_at' => ['nullable', 'date'],
