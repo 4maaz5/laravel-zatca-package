@@ -13,7 +13,7 @@ use Maaz\LaravelZatca\Support\CertificateLoader;
 class SdkSignatureService implements InvoiceSigner
 {
     /**
-     * @param array{path?: string|null, cli_path?: string|null} $sdkConfig
+     * @param array{path?: string|null, cli_path?: string|null, dotnet_binary?: string|null} $sdkConfig
      */
     public function __construct(
         protected array $sdkConfig = [],
@@ -218,8 +218,17 @@ class SdkSignatureService implements InvoiceSigner
     private function sdkCommandPrefix(string $cliPath): array
     {
         return str_ends_with(strtolower($cliPath), '.dll')
-            ? ['dotnet', $cliPath]
+            ? [$this->dotnetBinary(), $cliPath]
             : [$cliPath];
+    }
+
+    private function dotnetBinary(): string
+    {
+        $binary = $this->sdkConfig['dotnet_binary'] ?? 'dotnet';
+
+        return is_string($binary) && trim($binary) !== ''
+            ? trim($binary)
+            : 'dotnet';
     }
 
     /**

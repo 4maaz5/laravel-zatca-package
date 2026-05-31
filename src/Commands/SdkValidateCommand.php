@@ -87,7 +87,7 @@ class SdkValidateCommand extends Command
     private function buildCommand(string $cliPath, string $invoicePath, string $certificatePath, string $pihPath): array
     {
         $command = str_ends_with(strtolower($cliPath), '.dll')
-            ? ['dotnet', $cliPath]
+            ? [$this->dotnetBinary(), $cliPath]
             : [$cliPath];
 
         return [
@@ -100,6 +100,11 @@ class SdkValidateCommand extends Command
             '-pih',
             $pihPath,
         ];
+    }
+
+    private function dotnetBinary(): string
+    {
+        return $this->stringConfig('zatca.sdk.dotnet_binary') ?? 'dotnet';
     }
 
     /**

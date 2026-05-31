@@ -161,6 +161,7 @@ return [
     'sdk' => [
         'path' => env('ZATCA_SDK_PATH', realpath(__DIR__ . '/../.net sdk/zatca-einvoicing-sdk-DotNet-238-R3.4.8') ?: null),
         'cli_path' => env('ZATCA_SDK_CLI_PATH'),
+        'dotnet_binary' => env('ZATCA_DOTNET_BINARY', 'dotnet'),
         'resources' => [
             'pih_path' => env('ZATCA_PIH_PATH'),
             'invoice_xsd_path' => env('ZATCA_INVOICE_XSD_PATH'),
