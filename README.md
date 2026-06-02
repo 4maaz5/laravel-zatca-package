@@ -251,7 +251,7 @@ Use the official SDK-backed command to generate the CSR and private key needed f
 ```bash
 php artisan zatca:csr-generate ^
   --common-name="TST-886431145-399999999900003" ^
-  --serial-number="1-TST|2-TST|3-ed22f1d8-e6a2-1118-9b58-d9a8f11e445f" ^
+   --serial-number="1-TST/2-TST/3-ed22f1d8-e6a2-1118-9b58-d9a8f11e445f" ^
   --location-address="RRRD2929" ^
   --industry-business-category="Supply activities"
 ```

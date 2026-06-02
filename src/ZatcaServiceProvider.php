@@ -21,6 +21,7 @@ use Maaz\LaravelZatca\Commands\SubmitSampleInvoiceCommand;
 use Maaz\LaravelZatca\Contracts\ApiClient;
 use Maaz\LaravelZatca\Contracts\CsrGenerator;
 use Maaz\LaravelZatca\Contracts\HashGenerator;
+use Maaz\LaravelZatca\Phase2\Onboarding\PhpCsrGenerator;
 use Maaz\LaravelZatca\Contracts\InvoiceNormalizer;
 use Maaz\LaravelZatca\Contracts\OnboardingClient;
 use Maaz\LaravelZatca\Contracts\Phase2QrCodeGenerator;
@@ -193,6 +194,12 @@ class ZatcaServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(CsrGenerator::class, function ($app): CsrGenerator {
+            $generator = (string) $app['config']->get('zatca.phase2.csr_generator', 'sdk');
+
+            if ($generator === 'php') {
+                return new PhpCsrGenerator();
+            }
+
             return new SdkCsrGenerator(
                 (array) $app['config']->get('zatca.sdk', [])
             );

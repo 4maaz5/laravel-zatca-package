@@ -180,8 +180,6 @@ class TenantOnboardingFlow
             'csr' => $csr,
         ]);
 
-        \Illuminate\Support\Facades\Log::info('ZATCA RAW', $result);
-
         $body = $this->validatedOnboardingBody($result, ['requestID', 'binarySecurityToken', 'secret'], 'Compliance CSID');
 
         $credential->fill([
