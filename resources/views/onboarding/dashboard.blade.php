@@ -1077,7 +1077,7 @@
                             </div>
                         </div>
                         <div class="form-grid">
-                            <div class="field span-2"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="production">Production</option></select></div>
+                            <div class="field span-2"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="simulation">Simulation</option><option value="production">Production</option></select></div>
                             <div class="field"><label>{{ __('zatca::onboarding.common_name') }}</label><input class="input" name="common_name" required></div>
                             <div class="field"><label>{{ __('zatca::onboarding.serial_number') }}</label><input class="input" name="serial_number" required></div>
                             <div class="field"><label>{{ __('zatca::onboarding.location_address') }}</label><input class="input" name="location_address" required></div>
@@ -1107,7 +1107,7 @@
                             </div>
                         </div>
                         <div class="form-grid">
-                            <div class="field span-2"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="production">Production</option></select></div>
+                            <div class="field span-2"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="simulation">Simulation</option><option value="production">Production</option></select></div>
                             <div class="field span-2"><label>{{ __('zatca::onboarding.otp') }}</label><input class="input" name="otp" required></div>
                             <div class="field span-2"><button class="button button-primary" type="submit">{{ __('zatca::onboarding.issue_compliance') }}</button></div>
                         </div>
@@ -1122,7 +1122,7 @@
                             </div>
                         </div>
                         <div class="form-grid">
-                            <div class="field span-2"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="production">Production</option></select></div>
+                            <div class="field span-2"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="simulation">Simulation</option><option value="production">Production</option></select></div>
                             <div class="field span-2"><button class="button button-primary" type="submit">{{ __('zatca::onboarding.issue_production') }}</button></div>
                         </div>
                     </form>
@@ -1141,7 +1141,7 @@
                 <div class="notice warning" id="invoice-readiness-notice">{{ __('zatca::onboarding.invoice_submission_locked') !== 'zatca::onboarding.invoice_submission_locked' ? __('zatca::onboarding.invoice_submission_locked') : 'Invoice submission is locked for this environment until onboarding is complete.' }}</div>
 
                 <form class="form-grid" id="invoice-form">
-                    <div class="field"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="production">Production</option></select></div>
+                    <div class="field"><label>{{ __('zatca::onboarding.environment') }}</label><select class="input" name="environment"><option value="sandbox">Sandbox</option><option value="simulation">Simulation</option><option value="production">Production</option></select></div>
                     <div class="field"><label>{{ __('zatca::onboarding.mode') }}</label><select class="input" name="mode"><option value="reporting">{{ __('zatca::onboarding.reporting') }}</option><option value="clearance">{{ __('zatca::onboarding.clearance') }}</option></select></div>
                     <div class="field"><label>{{ __('zatca::onboarding.invoice_number') }}</label><input class="input" name="invoice_number"></div>
                     <div class="field"><label>{{ __('zatca::onboarding.issued_at') }}</label><input class="input" name="issued_at" type="datetime-local"></div>
