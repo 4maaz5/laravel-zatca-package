@@ -15,7 +15,7 @@ class GenerateCsrCommand extends Command
         {--config= : Existing CSR properties file path}
         {--save-config= : Path where the generated CSR properties file should be written}
         {--common-name= : CSR common name}
-        {--serial-number= : CSR serial number in 1-...|2-...|3-... format}
+        {--serial-number= : CSR serial number in 1-.../2-.../3-... format}
         {--organization-identifier= : Organization identifier, defaults to the tenant seller VAT number}
         {--organization-unit-name= : Organization unit or branch name, defaults to the tenant branch name}
         {--organization-name= : Organization legal name, defaults to the tenant seller name}

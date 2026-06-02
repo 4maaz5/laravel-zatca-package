@@ -146,6 +146,7 @@ return [
 
     'phase2' => [
         'signer' => env('ZATCA_PHASE2_SIGNER', 'php'),
+        'csr_generator' => env('ZATCA_CSR_GENERATOR', 'sdk'),
     ],
 
     /*

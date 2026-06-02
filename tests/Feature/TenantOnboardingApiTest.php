@@ -112,7 +112,7 @@ class TenantOnboardingApiTest extends TestCase
 
         $this->postJson('/api/zatca/onboarding/tenants/tenant-csid/csr', [
             'common_name' => 'TST-7050816433-313138851500003',
-            'serial_number' => '1-BI-TECH|2-LARAVEL-ZATCA|3-guid',
+            'serial_number' => '1-BI-TECH/2-LARAVEL-ZATCA/3-guid',
             'location_address' => 'RRRD7036',
             'industry_business_category' => 'Technology services',
         ])->assertOk()
@@ -179,7 +179,7 @@ class TenantOnboardingApiTest extends TestCase
         $this->postJson('/api/zatca/onboarding/tenants/tenant-rotate/csr', [
             'environment' => 'sandbox',
             'common_name' => 'TST-7050816433-313138851500003',
-            'serial_number' => '1-BI-TECH|2-LARAVEL-ZATCA|3-guid',
+            'serial_number' => '1-BI-TECH/2-LARAVEL-ZATCA/3-guid',
             'location_address' => 'RRRD7036',
             'industry_business_category' => 'Technology services',
         ])->assertOk()

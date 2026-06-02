@@ -31,7 +31,7 @@ class GenerateCsrCommandTest extends TestCase
 
         $this->artisan('zatca:csr-generate', [
             '--common-name' => 'TST-123',
-            '--serial-number' => '1-TST|2-TST|3-uuid',
+            '--serial-number' => '1-TST/2-TST/3-uuid',
             '--location-address' => 'RRRD2929',
             '--industry-business-category' => 'Supply activities',
             '--show-csr' => true,
