@@ -179,9 +179,7 @@ class PhpCsrGenerator implements CsrGenerator
     protected function writeOpensslConfig(array $dn, array $properties): string
     {
         $sanFields = [
-            'serialNumber' => PHP_OS_FAMILY === 'Windows'
-                ? str_replace(['|', ',', ';', '@', '_', '~'], '/', $properties['csr.serial.number'])
-                : $properties['csr.serial.number'],
+            'serialNumber' => str_replace(['|', ',', ';', '@', '_', '~'], '/', $properties['csr.serial.number']),
             'organizationIdentifier' => $properties['csr.organization.identifier'],
             'title' => $properties['csr.invoice.type'],
             'street' => $properties['csr.location.address'],
