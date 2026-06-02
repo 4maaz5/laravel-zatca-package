@@ -45,13 +45,14 @@ class PhpCsrGenerator implements CsrGenerator
     protected function generatePhp(array $dn, array $properties, bool $simulation, bool $nonProduction): GeneratedCsrResult
     {
         $configFile = $this->writeOpensslConfig($dn, $properties);
-        $keyConfig = ['config' => $this->writeKeyConfig()];
+        $keyConfigFile = $this->writeKeyConfig();
+        $tempCleanup = [$configFile, $keyConfigFile];
 
         try {
             $privateKey = openssl_pkey_new([
                 'private_key_type' => OPENSSL_KEYTYPE_EC,
                 'curve_name' => 'prime256v1',
-                'config' => $keyConfig['config'],
+                'config' => $keyConfigFile,
             ]);
 
             if (! $privateKey) {
@@ -71,7 +72,7 @@ class PhpCsrGenerator implements CsrGenerator
                 throw new CsrException('Failed to export CSR PEM: ' . openssl_error_string());
             }
 
-            if (! openssl_pkey_export($privateKey, $privateKeyPem, null, $keyConfig)) {
+            if (! openssl_pkey_export($privateKey, $privateKeyPem, null, ['config' => $keyConfigFile])) {
                 throw new CsrException('Failed to export private key PEM: ' . openssl_error_string());
             }
 
@@ -92,20 +93,21 @@ class PhpCsrGenerator implements CsrGenerator
                 nonProduction: $nonProduction,
             );
         } finally {
-            if (isset($configFile) && is_file($configFile)) {
-                @unlink($configFile);
-            }
-            if (isset($keyConfig['config']) && is_file($keyConfig['config'])) {
-                @unlink($keyConfig['config']);
+            foreach ($tempCleanup as $path) {
+                if (is_file($path)) {
+                    @unlink($path);
+                }
             }
         }
     }
 
     protected function generateCli(array $dn, array $properties, bool $simulation, bool $nonProduction): GeneratedCsrResult
     {
+        $configFile = $this->writeOpensslConfig($dn, $properties);
+        $privateKey = null;
         $keyFile = null;
         $csrFile = null;
-        $configFile = $this->writeOpensslConfig($dn, $properties);
+        $tempCleanup = [$configFile];
 
         try {
             $privateKey = openssl_pkey_new([
@@ -117,30 +119,40 @@ class PhpCsrGenerator implements CsrGenerator
                 throw new CsrException('Failed to generate EC private key: ' . openssl_error_string());
             }
 
-            $keyFile = $this->writePrivateKeyFile($privateKey);
+            $keyFile = $this->tempPath('php-key-', '.pem');
+            $tempCleanup[] = $keyFile;
+
+            if (! openssl_pkey_export($privateKey, $keyPem)) {
+                throw new CsrException('Failed to export private key PEM: ' . openssl_error_string());
+            }
+
+            file_put_contents($keyFile, $keyPem);
+
             $csrFile = $this->tempPath('php-csr-out-', '.pem');
+            $tempCleanup[] = $csrFile;
 
             $subject = $this->buildSubjectString($dn);
-            $command = [
-                'openssl',
-                'req',
-                '-new',
-                '-config', $configFile,
-                '-key', $keyFile,
-                '-out', $csrFile,
-                '-subj', $subject,
-                '-sha256',
-            ];
+            $command = sprintf(
+                'openssl req -new -config %s -key %s -out %s -subj %s -sha256',
+                escapeshellarg($configFile),
+                escapeshellarg($keyFile),
+                escapeshellarg($csrFile),
+                escapeshellarg($subject)
+            );
 
             $result = $this->runCommand($command);
 
-            if ($result['exit_code'] !== 0 || ! is_file($csrFile)) {
+            if ($result['exit_code'] !== 0 || ! is_file($csrFile) || filesize($csrFile) === 0) {
                 $error = trim($result['stderr'] . PHP_EOL . $result['stdout']);
                 throw new CsrException($error ?: 'CSR generation via OpenSSL CLI failed.');
             }
 
             $csrPem = trim((string) file_get_contents($csrFile)) . "\n";
-            $privateKeyPem = $this->exportPrivateKeyPem($privateKey);
+
+            if (! openssl_pkey_export($privateKey, $privateKeyPem)) {
+                throw new CsrException('Failed to export private key PEM: ' . openssl_error_string());
+            }
+
             $csrBase64 = $this->extractBase64($csrPem);
 
             return new GeneratedCsrResult(
@@ -148,7 +160,7 @@ class PhpCsrGenerator implements CsrGenerator
                 privateKeyPath: '',
                 csrBase64: $csrBase64,
                 csrPem: $csrPem,
-                privateKeyPem: $privateKeyPem,
+                privateKeyPem: trim($privateKeyPem) . "\n",
                 properties: $properties,
                 configPath: null,
                 rawOutput: false,
@@ -156,14 +168,10 @@ class PhpCsrGenerator implements CsrGenerator
                 nonProduction: $nonProduction,
             );
         } finally {
-            if (isset($configFile) && is_file($configFile)) {
-                @unlink($configFile);
-            }
-            if ($keyFile !== null && is_file($keyFile)) {
-                @unlink($keyFile);
-            }
-            if ($csrFile !== null && is_file($csrFile)) {
-                @unlink($csrFile);
+            foreach ($tempCleanup as $path) {
+                if (is_file($path)) {
+                    @unlink($path);
+                }
             }
         }
     }
@@ -181,11 +189,6 @@ class PhpCsrGenerator implements CsrGenerator
         ];
 
         $lines = [];
-
-        if (PHP_OS_FAMILY !== 'Windows') {
-            $lines[] = '.include /etc/ssl/openssl.cnf';
-        }
-
         $lines[] = '[req]';
         $lines[] = 'distinguished_name = req_distinguished_name';
         $lines[] = 'req_extensions = v3_req';
@@ -209,7 +212,7 @@ class PhpCsrGenerator implements CsrGenerator
             $lines[] = "$key=" . $this->escapeValue($value);
         }
 
-        $path = tempnam(sys_get_temp_dir(), 'php-csr-') . '.cnf';
+        $path = $this->tempPath('php-csr-', '.cnf');
         file_put_contents($path, implode("\n", $lines) . "\n");
 
         return $path;
@@ -221,31 +224,15 @@ class PhpCsrGenerator implements CsrGenerator
         $lines[] = '[openssl_init]';
         $lines[] = '';
 
-        $path = tempnam(sys_get_temp_dir(), 'php-key-') . '.cnf';
+        $path = $this->tempPath('php-key-', '.cnf');
         file_put_contents($path, implode("\n", $lines) . "\n");
 
         return $path;
     }
 
-    protected function writePrivateKeyFile(\OpenSSLAsymmetricKey $privateKey): string
+    protected function tempPath(string $prefix, string $suffix): string
     {
-        if (! openssl_pkey_export($privateKey, $pem)) {
-            throw new CsrException('Failed to export private key PEM: ' . openssl_error_string());
-        }
-
-        $path = $this->tempPath('php-key-', '.pem');
-        file_put_contents($path, $pem);
-
-        return $path;
-    }
-
-    protected function exportPrivateKeyPem(\OpenSSLAsymmetricKey $privateKey): string
-    {
-        if (! openssl_pkey_export($privateKey, $pem)) {
-            throw new CsrException('Failed to export private key PEM: ' . openssl_error_string());
-        }
-
-        return $pem;
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . $prefix . bin2hex(random_bytes(12)) . $suffix;
     }
 
     protected function buildSubjectString(array $dn): string
@@ -258,39 +245,34 @@ class PhpCsrGenerator implements CsrGenerator
                 'organizationName' => 'O',
                 'organizationalUnitName' => 'OU',
                 'countryName' => 'C',
-                'stateOrProvinceName' => 'ST',
-                'localityName' => 'L',
                 default => $key,
             };
-            $parts[] = '/' . $shortName . '=' . $value;
+            $parts[] = sprintf('/%s=%s', $shortName, $this->escapeSubjectValue($value));
         }
 
         return implode('', $parts);
     }
 
-    protected function tempPath(string $prefix, string $suffix): string
+    protected function escapeSubjectValue(string $value): string
     {
-        return tempnam(sys_get_temp_dir(), $prefix) . $suffix;
+        return str_replace(['\\', '/', '='], ['\\\\', '\\/', '\\='], $value);
     }
 
     /**
-     * @param array<int, string> $command
      * @return array{stdout: string, stderr: string, exit_code: int}
      */
-    protected function runCommand(array $command): array
+    protected function runCommand(string $command): array
     {
-        $process = proc_open(
-            implode(' ', array_map(static fn (string $arg): string => escapeshellarg($arg), $command)),
-            [
-                0 => ['pipe', 'r'],
-                1 => ['pipe', 'w'],
-                2 => ['pipe', 'w'],
-            ],
-            $pipes
-        );
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+
+        $process = proc_open($command, $descriptors, $pipes);
 
         if (! is_resource($process)) {
-            throw new CsrException('Unable to start openssl process.');
+            throw new CsrException('Unable to start OpenSSL process.');
         }
 
         fclose($pipes[0]);
@@ -301,10 +283,14 @@ class PhpCsrGenerator implements CsrGenerator
         fclose($pipes[1]);
         fclose($pipes[2]);
 
+        $status = proc_get_status($process);
+        $exitCode = $status['exitcode'] ?? -1;
+        proc_close($process);
+
         return [
             'stdout' => is_string($stdout) ? $stdout : '',
             'stderr' => is_string($stderr) ? $stderr : '',
-            'exit_code' => proc_close($process),
+            'exit_code' => $exitCode,
         ];
     }
 
