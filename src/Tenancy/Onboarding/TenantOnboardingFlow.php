@@ -137,7 +137,7 @@ class TenantOnboardingFlow
             'invoice_type' => $payload['invoice_type'] ?? '1100',
             'location_address' => $payload['location_address'],
             'industry_business_category' => $payload['industry_business_category'],
-            'simulation' => (bool) ($payload['simulation'] ?? false),
+            'simulation' => $environment === 'simulation' || (bool) ($payload['simulation'] ?? false),
             'non_production' => (bool) ($payload['non_production'] ?? false),
         ]);
 
