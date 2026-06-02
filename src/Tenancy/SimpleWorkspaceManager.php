@@ -210,7 +210,7 @@ class SimpleWorkspaceManager
         $configuredCsrDefaults = (array) ($defaultMeta['csr_defaults'] ?? []);
         $csrDefaults = array_replace([
             'common_name' => ($crn !== '' && $vatNumber !== '') ? sprintf('TST-%s-%s', $crn, $vatNumber) : null,
-            'serial_number_prefix' => sprintf('1-%s|2-LARAVEL-ZATCA|3-', strtoupper(str_replace(' ', '-', $tenantKey))),
+            'serial_number_prefix' => '1-TST|2-TST|3-',
             'organization_identifier' => $vatNumber !== '' ? $vatNumber : null,
             'organization_name' => $legalName !== '' ? $legalName : null,
             'organization_unit_name' => $branchName,

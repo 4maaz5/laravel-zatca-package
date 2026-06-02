@@ -1595,7 +1595,7 @@
         const branchName = selectedTenant.branch_name || 'Main Branch';
         const vatNumber = selectedTenant.vat_number || '';
         const crn = selectedTenant.crn || selectedTenant.key || 'TENANT';
-        const serialPrefix = csrDefaults.serial_number_prefix || `1-${selectedTenant.key || 'TENANT'}|2-LARAVEL-ZATCA|3-`;
+        const serialPrefix = csrDefaults.serial_number_prefix || '1-TST|2-TST|3-';
 
         csrForm.elements.common_name.value = csrDefaults.common_name || `TST-${crn}-${vatNumber}`.replace(/\s+/g, '');
         csrForm.elements.serial_number.value = `${serialPrefix}${crypto.randomUUID()}`;
