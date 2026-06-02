@@ -38,14 +38,14 @@ class PhpCsrGenerator implements CsrGenerator
         $properties = $this->buildProperties($payload, $tenantConfig);
         $configFile = $this->writeOpensslConfig($dn, $properties);
 
-        $keyConfigFile = $this->writeKeyConfig();
+        $keyConfig = PHP_OS_FAMILY === 'Windows' ? ['config' => $this->writeKeyConfig()] : [];
 
         try {
-            $privateKey = openssl_pkey_new([
+            $config = array_merge($keyConfig, [
                 'private_key_type' => OPENSSL_KEYTYPE_EC,
                 'curve_name' => 'prime256v1',
-                'config' => $keyConfigFile,
             ]);
+            $privateKey = openssl_pkey_new($config);
 
             if (! $privateKey) {
                 throw new CsrException('Failed to generate EC private key: ' . openssl_error_string());
@@ -64,7 +64,7 @@ class PhpCsrGenerator implements CsrGenerator
                 throw new CsrException('Failed to export CSR PEM: ' . openssl_error_string());
             }
 
-            if (! openssl_pkey_export($privateKey, $privateKeyPem, null, ['config' => $keyConfigFile])) {
+            if (! openssl_pkey_export($privateKey, $privateKeyPem, null, $keyConfig)) {
                 throw new CsrException('Failed to export private key PEM: ' . openssl_error_string());
             }
 
@@ -89,8 +89,8 @@ class PhpCsrGenerator implements CsrGenerator
                 @unlink($configFile);
             }
 
-            if (isset($keyConfigFile) && is_file($keyConfigFile)) {
-                @unlink($keyConfigFile);
+            if (isset($keyConfig['config']) && is_file($keyConfig['config'])) {
+                @unlink($keyConfig['config']);
             }
         }
     }
