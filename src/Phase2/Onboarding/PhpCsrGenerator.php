@@ -107,7 +107,16 @@ class PhpCsrGenerator implements CsrGenerator
             'businessCategory' => $properties['csr.industry.business.category'],
         ];
 
+        $systemConfig = PHP_OS_FAMILY !== 'Windows' && is_file('/etc/ssl/openssl.cnf')
+            ? '/etc/ssl/openssl.cnf'
+            : null;
+
         $lines = [];
+
+        if ($systemConfig !== null) {
+            $lines[] = sprintf('.include %s', $systemConfig);
+        }
+
         $lines[] = '[req]';
         $lines[] = 'distinguished_name = req_distinguished_name';
         $lines[] = 'req_extensions = v3_req';
@@ -122,7 +131,7 @@ class PhpCsrGenerator implements CsrGenerator
         $lines[] = '';
 
         $lines[] = '[v3_req]';
-        $lines[] = '1.3.6.1.4.1.311.20.2=ASN1:UTF8String:PREZATCA-Code-Signing';
+        $lines[] = '1.3.6.1.4.1.311.20.2=DER:04170C155052455A415443412D436F64652D5369676E696E67';
         $lines[] = 'subjectAltName=dirName:ZATCA_SAN';
         $lines[] = '';
 
