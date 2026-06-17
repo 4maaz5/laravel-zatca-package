@@ -44,7 +44,7 @@ class PhpCsrGenerator implements CsrGenerator
 
     protected function generatePhp(array $dn, array $properties, bool $simulation, bool $nonProduction): GeneratedCsrResult
     {
-        $configFile = $this->writeOpensslConfig($dn, $properties);
+        $configFile = $this->writeOpensslConfig($dn, $properties, $simulation, $nonProduction);
         $keyConfigFile = $this->writeKeyConfig();
         $tempCleanup = [$configFile, $keyConfigFile];
 
@@ -103,7 +103,7 @@ class PhpCsrGenerator implements CsrGenerator
 
     protected function generateCli(array $dn, array $properties, bool $simulation, bool $nonProduction): GeneratedCsrResult
     {
-        $configFile = $this->writeOpensslConfig($dn, $properties);
+        $configFile = $this->writeOpensslConfig($dn, $properties, $simulation, $nonProduction);
         $privateKey = null;
         $keyFile = null;
         $csrFile = null;
@@ -176,15 +176,21 @@ class PhpCsrGenerator implements CsrGenerator
         }
     }
 
-    protected function writeOpensslConfig(array $dn, array $properties): string
+    protected function writeOpensslConfig(array $dn, array $properties, bool $simulation = false, bool $nonProduction = false): string
     {
         $sanFields = [
-            'serialNumber' => str_replace(['|', ',', ';', '@', '_', '~'], '/', $properties['csr.serial.number']),
+            'serialNumber' => $properties['csr.serial.number'],
             'organizationIdentifier' => $properties['csr.organization.identifier'],
             'title' => $properties['csr.invoice.type'],
             'street' => $properties['csr.location.address'],
             'businessCategory' => $properties['csr.industry.business.category'],
         ];
+
+        $certTemplate = match (true) {
+            $simulation => 'PREZATCA-Code-Signing',
+            $nonProduction => 'TSTZATCA-Code-Signing',
+            default => 'ZATCA-Code-Signing',
+        };
 
         $lines = [];
         $lines[] = '[req]';
@@ -201,7 +207,7 @@ class PhpCsrGenerator implements CsrGenerator
         $lines[] = '';
 
         $lines[] = '[v3_req]';
-        $lines[] = '1.3.6.1.4.1.311.20.2=ASN1:UTF8String:PREZATCA-Code-Signing';
+        $lines[] = "1.3.6.1.4.1.311.20.2=ASN1:PRINTABLESTRING:$certTemplate";
         $lines[] = 'subjectAltName=dirName:ZATCA_SAN';
         $lines[] = '';
 
