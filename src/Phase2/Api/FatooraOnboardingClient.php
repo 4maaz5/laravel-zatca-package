@@ -117,6 +117,14 @@ class FatooraOnboardingClient implements OnboardingClient
             throw new ApiException((string) trans('zatca::exceptions.api_server_error', ['status' => $response->status()]));
         }
 
+        $this->logger->debug((string) trans('zatca::messages.log_api_response'), [
+            'stage' => $stage,
+            'tenant_id' => $tenantConfig->tenantId,
+            'url' => $url,
+            'status_code' => $response->status(),
+            'body' => $response->json() ?? $response->body(),
+        ]);
+
         return [
             'success' => $response->successful(),
             'status_code' => $response->status(),
