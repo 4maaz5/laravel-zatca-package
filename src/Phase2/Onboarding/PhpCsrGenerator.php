@@ -198,6 +198,7 @@ class PhpCsrGenerator implements CsrGenerator
         $lines[] = 'req_extensions = v3_req';
         $lines[] = 'prompt = no';
         $lines[] = 'default_md = sha256';
+        $lines[] = 'string_mask = utf8only';
         $lines[] = '';
 
         $lines[] = '[req_distinguished_name]';
